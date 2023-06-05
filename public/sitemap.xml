@@ -2,33 +2,33 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:1313/tags/crypto/</loc>
+    <loc>https://joywang.co/tags/crypto/</loc>
     <lastmod>2023-04-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/</loc>
+    <loc>https://joywang.co/</loc>
     <lastmod>2023-04-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/posts/</loc>
+    <loc>https://joywang.co/posts/</loc>
     <lastmod>2023-04-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/2023/04/28/2023-04-28-practical-mpc-for-custody/</loc>
+    <loc>https://joywang.co/2023/04/28/2023-04-28-practical-mpc-for-custody/</loc>
     <lastmod>2023-04-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/tags/</loc>
+    <loc>https://joywang.co/tags/</loc>
     <lastmod>2023-04-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/2023/03/02/2023-03-02-account-abstraction/</loc>
+    <loc>https://joywang.co/2023/03/02/2023-03-02-account-abstraction/</loc>
     <lastmod>2023-03-02T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/2023/01/19/2023-01-19-thresholdsig-multisig/</loc>
+    <loc>https://joywang.co/2023/01/19/2023-01-19-thresholdsig-multisig/</loc>
     <lastmod>2023-01-19T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/2022/12/29/2022-12-29-key-derivation/</loc>
+    <loc>https://joywang.co/2022/12/29/2022-12-29-key-derivation/</loc>
     <lastmod>2022-12-29T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/2022/12/05/2022-12-05-committments/</loc>
+    <loc>https://joywang.co/2022/12/05/2022-12-05-committments/</loc>
     <lastmod>2022-12-05T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:1313/categories/</loc>
+    <loc>https://joywang.co/categories/</loc>
   </url>
 </urlset>
