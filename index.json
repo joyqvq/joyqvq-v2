@@ -1,58 +1,58 @@
 {
   "version": "https://jsonfeed.org/version/1",
   "title": "Joy's Personal Website",
-  "home_page_url": "http://localhost:1313",
-  "feed_url": "http://localhost:1313/",
+  "home_page_url": "https://joywang.co",
+  "feed_url": "https://joywang.co/",
 
 
   "items": [
   
   
     {
-      "id": "http://localhost:1313/2023/04/28/2023-04-28-practical-mpc-for-custody/",
+      "id": "https://joywang.co/2023/04/28/2023-04-28-practical-mpc-for-custody/",
       "title": "Practical Overview on Secure Multi-Party Computation for Custody",
       "content_text": "An overview of Secure Multi-Party Computation use cases in cryptocurrency. Multi-Party Computation describes the techniques that a number of parties with private inputs wish to compute a joint function of their inputs, without revealing anything but the output. A simple example is A and B would like to find who has more money in the bank account without needing to tell each other their bank account balance. Here we would like to learn the output of max(balance_a, balance_b) and balance_a and balance_b are the private inputs.",
-      "url": "http://localhost:1313/2023/04/28/2023-04-28-practical-mpc-for-custody/",
+      "url": "https://joywang.co/2023/04/28/2023-04-28-practical-mpc-for-custody/",
       "date_published": "2023-04-28 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }
   
   , 
     {
-      "id": "http://localhost:1313/2023/03/02/2023-03-02-account-abstraction/",
+      "id": "https://joywang.co/2023/03/02/2023-03-02-account-abstraction/",
       "title": "Account Abstraction, Alternatives to Private Key Wallets",
       "content_text": "A practical technical review on account abstractions and its implementation. Account abstraction is a recently deployed feature on Ethereum network. Previously, funds can only be spent by providing a valid signature over the transaction data. Under the private key wallet model, a digital signature attests as a witness for a transaction to be valid, and it is considered non-repudiable and final.\nHowever, such authentication methods can be considered as one of the barriers to entry when onboarding users given the key handling intricacies, and it is rather restrictive for new use cases of on-chain activities.",
-      "url": "http://localhost:1313/2023/03/02/2023-03-02-account-abstraction/",
+      "url": "https://joywang.co/2023/03/02/2023-03-02-account-abstraction/",
       "date_published": "2023-03-02 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }
   
   , 
     {
-      "id": "http://localhost:1313/2023/01/19/2023-01-19-thresholdsig-multisig/",
+      "id": "https://joywang.co/2023/01/19/2023-01-19-thresholdsig-multisig/",
       "title": "A Look at Threshold Signature and Multisig Construction",
       "content_text": "Creating threshold signature and multisigs with Schnorr, how are they different and when to use which? Threshold signature and multisig are two important cryptographic constructions that are available for the majority of cryptocurrency protocols. In a single signature model, it assumes that a single signer can produce a signature and submit to the protocol for verification. This makes the single private key the single point of failure, since the compromise of this key means 100% loss of funds.",
-      "url": "http://localhost:1313/2023/01/19/2023-01-19-thresholdsig-multisig/",
+      "url": "https://joywang.co/2023/01/19/2023-01-19-thresholdsig-multisig/",
       "date_published": "2023-01-19 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }
   
   , 
     {
-      "id": "http://localhost:1313/2022/12/29/2022-12-29-key-derivation/",
+      "id": "https://joywang.co/2022/12/29/2022-12-29-key-derivation/",
       "title": "Annotations and Discussions on Key Derivation",
       "content_text": "A closer look on key derivations with relation to curve operations. This post is a more general discussion on key derivation applying to broader cryptocurrency usage. You can find my writing on the Sui Network specifically here.\nBIP-32 and SLIP-0010 are both excellent standards on how key management works, and they both have extensive implementations across many languages. However, I struggle to find a good reading on why some constructions are needed and how they relate to the RFCs on different curves.",
-      "url": "http://localhost:1313/2022/12/29/2022-12-29-key-derivation/",
+      "url": "https://joywang.co/2022/12/29/2022-12-29-key-derivation/",
       "date_published": "2022-12-29 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }
   
   , 
     {
-      "id": "http://localhost:1313/2022/12/05/2022-12-05-committments/",
+      "id": "https://joywang.co/2022/12/05/2022-12-05-committments/",
       "title": "All Things Commitments",
       "content_text": "Examining vector and polynomial commitments. \u0026ldquo;A promise is made, a promise is kept.\u0026rdquo; How do we make commitments?\nMaking commitments is a two-step process. First, we make a promise: a committer publishes a value and it binds to the message without revealing it.\nHow do we know a promise is kept? Second, he can choose to reveal the message to a verifier, who can check if the message is indeed what he previously published.",
-      "url": "http://localhost:1313/2022/12/05/2022-12-05-committments/",
+      "url": "https://joywang.co/2022/12/05/2022-12-05-committments/",
       "date_published": "2022-12-05 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }
