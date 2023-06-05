@@ -1,12 +1,12 @@
-baseURL = "/hugo-theme-serial-programmer/"
+baseURL = "http://localhost:1313"
 languageCode = "en-us"
-title = "Hugo Serial Programmer"
+title = "Joy's Personal Website"
 rssLimit = 20
 copyright = "2021 Janne Kemppainen All rights reserved"
 minify = false
 
 [Author]
-  name = "sharadcodes"
+  name = "joy"
   email = "me@example.com"
 
 [permalinks]
