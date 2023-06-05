@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Annotations and Discussions on Key Derivation | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="http://localhost:1313assets/css/post.css" />
+  <script defer src="http://localhost:1313assets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="http://localhost:1313assets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="http://localhost:1313">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">Annotations and Discussions on Key Derivation</h2>
+          <small class="date">Thu Dec 29, 2022</small>
+          <div class="tags">
+            
+            <a href="http://localhost:1313tags/crypto" class="tag">crypto</a>
+            
+          </div>
+        </div>
+        <div class="content"><h2 id="a-closer-look-on-key-derivations-with-relation-to-curve-operations">A closer look on key derivations with relation to curve operations.</h2>
+<p>This post is a more general discussion on key derivation applying to broader cryptocurrency usage. You can find my writing on the Sui Network specifically <a href="https://tech.mystenlabs.com/cryptography-in-sui-wallet-specifications/">here</a>.</p>
+<p><a href="https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki">BIP-32</a> and <a href="https://github.com/satoshilabs/slips/blob/master/slip-0010.md">SLIP-0010</a> are both excellent standards on <strong>how</strong> key management works, and they both have extensive implementations across many languages. However, I struggle to find a good reading on <strong>why</strong> some constructions are needed and <strong>how</strong> they relate to the RFCs on different curves. This post examines key derivations in the contexts of signature schemes.</p>
+<h2 id="bip-32-revisited">BIP-32 Revisited</h2>
+<p>BIP-32 defines the Hierarchical Deterministic Wallet structure to logically associate a set of keys together. This is primarily motivated by the inconvenience to keep track of a large number of private keys. The standard specifies a tree structure organizing a bunch of private keys, so they can be deterministically generated from one single master private key with domain separations. Instead of securing multiple private keys, the user just needs to secure one master key to spend the transactions.</p>
+<p>A common use case is for a custodian that needs to associate distinct managed addresses for all of the users. By deriving a number addresses from the same master private key, each user can receive funds to his own address. Since the custodian has the master private key that can derive all the private keys, the custodian always has the ability to spend the transaction that is deposited in any of its derived addresses.</p>
+<p>Specifically, BIP-32 defines the following three functions:</p>
+<ol>
+<li><strong>Master seed $\rightarrow$ Master private key</strong>: This produces the first master private key and a master chaincode. Chaincode is used as additional entropy so both the public and private key derivation does not only depend on the key itself. The master public key can be calculated by multiplying the base point.</li>
+<li><strong>Parent private key $\rightarrow$ Child private key</strong>: This defines the induction step for the child private key derivation.</li>
+<li><strong>Parent public key $\rightarrow$ Child public key</strong>: This defines the induction step for the child public key derivation.</li>
+</ol>
+<p><img src="/images/2022-12-29-bip32.png" alt="Three functions"></p>
+<p>Now let&rsquo;s take a look at the inner workings of each function.</p>
+<h3 id="function-1-master-seed-rightarrow-master-private-key">Function 1: Master Seed $\rightarrow$ Master Private Key</h3>
+<p>$gen(seed) \rightarrow (sk_0, cc_0)$</p>
+<ul>
+<li>Compute $I$ using HMAC.
+<code>I = HMAC-SHA512(Key = &quot;Bitcoin seed&quot;, Data = seed)</code></li>
+<li>Compute master private key. This is the first 32 bytes of $I$. <code>sk_0 = I_L</code></li>
+<li>Compute master chaincode. This is the last 32 bytes of $I$.
+<code>cc_0 = I_R</code></li>
+</ul>
+<h3 id="function-2-parent-private-key-rightarrow-child-private-key">Function 2: Parent Private Key $\rightarrow$ Child Private Key</h3>
+<p>$CKD_{sk}((sk_{parent}, cc_{parent}), i) \rightarrow (sk_i, cc_i)$</p>
+<ul>
+<li>Compute $I$
+<ul>
+<li>If $i$ is hardened ($i \geq 2^{31}$), <code>I = HMAC-SHA512(Key = cc_i, Data = 0x00 || sk_i || i)</code></li>
+<li>If $i$ is normal, <code>I = HMAC-SHA512(Key = cc_i, Data = sk_i \cdot G || i)</code></li>
+</ul>
+</li>
+<li>Compute the child private key. This is the result of adding two scalars: the parent private key and the first half of $I$.</li>
+</ul>
+<p>$$sk_i = I_L + sk_{parent} \mod n$$</p>
+<ul>
+<li>Compute child chaincode.</li>
+</ul>
+<p>$$cc_i = I_R$$</p>
+<h3 id="annotations-and-comments">Annotations and Comments</h3>
+<ul>
+<li>
+<p>Why do we need chaincode?</p>
+<p>Chaincode is used as the <code>Key</code> for the HMAC function. This is to make the key derivation not only depend on the key itself but with extra entropy. We call a private key along with chaincode as an extended private key <code>xpriv = (sk_0, cc_0)</code>. Similarly, we have an extended public key as <code>xpub = (pk_0, cc_0)</code>.</p>
+</li>
+<li>
+<p>What are the differences between &ldquo;hardened&rdquo; and &ldquo;normal&rdquo;?</p>
+<p>For a hardened child, $I$ is calculated with the private key ($sk_i$) whereas the normal child one is calculated with the public key (the result of $sk_i \cdot G$).</p>
+<p>The latter is not &ldquo;hardened&rdquo; because you can get it with just public keys only. It is implied that you can get the extended private key ($sk_0, cc_0$) using a parent extended public key $(pk_0, cc_0)$ and any non-hardened private key ($sk_i$).</p>
+<p>Because $I$ is possible to compute with just the public key and chaincode, you get $I_L$ for free. Using $sk_{parent} = sk_{i} - I_L$, you can compute all the way back to $sk_0$!</p>
+</li>
+<li>
+<p>Why 0x00 padding when computing $I$?</p>
+<p>This is an implementation detail to make the <code>Data</code> to hash the same length no matter whether $i$ is hardened or not.</p>
+<p>$pk_i = sk_i \cdot G$ is a point on the elliptic curve $(x, y)$ where $x$ and $y$ are both 32 bytes. The compact serialization form of this point is 33 bytes where $y$ can be compressed to <code>0x02</code> or <code>0x03</code>. $x$ and 1-byte indicating $y$ can uniquely identify a point because there are only two $y$ corresponding to a $x$ that lies on the curve.</p>
+</li>
+</ul>
+<h2 id="parent-public-key-rightarrow-child-public-key">Parent Public Key $\rightarrow$ Child Public Key</h2>
+<p>$CKD_{pk}((pk_{parent}, c_{parent}), i) \rightarrow (pk_i, cc_i)$</p>
+<ul>
+<li>
+<p>Compute $I$.</p>
+<ul>
+<li>If $i$ is hardened ($i \geq 2^{31}$), fail.</li>
+<li>If $i$ is normal, <code>I = HMAC-SHA512(Key = cc_parent, Data = pk_parent || i)</code></li>
+</ul>
+</li>
+<li>
+<p>Compute child public key. This is the result of adding two elliptic curve points: the parent public key and the scalar multiplication of $I_L$.</p>
+<p>$$pk_i = I_L \cdot G + pk_{parent}$$</p>
+</li>
+<li>
+<p>Compute child chaincode.</p>
+<p>$$cc_i = I_R$$</p>
+</li>
+</ul>
+<h3 id="annotations-and-comments-1">Annotations and Comments</h3>
+<ul>
+<li>
+<p>Why does the derivation fail if $i$ is hardened?</p>
+<p>This is because the $I$ for a hardened child is computed with the parent private key that is not known in the public key derivation.</p>
+</li>
+<li>
+<p>Why is this correct for non-hardened public key derivation?</p>
+<p>According to the key derivation for private and public key functions, we have:</p>
+<p>$$sk_i = I_L + sk_{parent}$$</p>
+<p>$$pk_i = I_L \cdot G + pk_{parent}$$</p>
+<p>The (+) here is an elliptic curve addition of two points. We can then derive:</p>
+<p>$pk_i = I_L \cdot G + pk_{parent} = I_L \cdot G + sk_{parent} \cdot G = (I_L + sk_{parent}) \cdot G = sk_i \cdot G$</p>
+<p>Now we have $pk_i = sk_i \cdot G$ for each child private/public key pair.</p>
+</li>
+<li>
+<p>Why is this useful?</p>
+<p>The ability to do public key derivation enables the use case of watch-only wallets. A common set up is to have an online service that can derive normal child public keys for receiving payments and can view balances. The offline service keeps the private key and it only will be used to create transactions moving the funds out of any of the addresses since it can derive all the private keys that control the funds.</p>
+<p>Furthermore, <a href="https://github.com/bitcoin/bips/blob/master/bip-0044.mediawiki">BIP-44</a> defines the meaning behind each node in the derivation path as <code>m / purpose' / coin_type' / account' / change / address_index</code>. The last two nodes are not hardened so that they can be used for watch-only wallets.</p>
+</li>
+</ul>
+<h2 id="key-generation-for-ecdsa-vs-ed25519">Key Generation for ECDSA vs Ed25519</h2>
+<p>So far we have covered the key derivation details for Secp256k1, this also works for any other elliptic curves. The important assumption that it works is the relation $pk_i = sk_i \cdot G$ for each $i$ holds due to the homomorphic property for addition. However, this relation is not necessarily true for other signature schemes on curves such as the Edwards curve.</p>
+<p>First, let&rsquo;s quickly recap how a public key is generated from a private key for two particular cryptosystems: Secp256k1 and Ed25519. This will help us understand the impact of key derivations on them.</p>
+<h3 id="secp256k1">Secp256k1</h3>
+<p>The private key is a randomly generated scalar represented in 32 bytes. The public key is a point on the elliptic curve, using the scalar point multiplication of the private key. $pk_i = sk_i \cdot G$ where $G$ is the generator point.</p>
+<p>By adding some value to scalar $sk_i$ and adding the point multiplication of it to the public key, this equation still holds: $pk_i + x \cdot G = (sk_i + x) \cdot G$, because the addition of the public keys on the curve remains in the same group.</p>
+<h3 id="ed25519">Ed25519</h3>
+<p>The private key for Ed25519 is slightly different than just a randomly generated scalar. It first involves a preprocessing step to &ldquo;hash then prune&rdquo; a private key. We denote the private key before preprocessing as $sk_{seed}$ and after as $sk_{pruned}$.</p>
+<p>The seed itself is a randomly generated scalar represented in 32 bytes. The private key is pruned as follows according to the latest <a href="https://www.rfc-editor.org/rfc/rfc8032#section-5.1.5">RFC</a>:</p>
+<ul>
+<li>
+<p>Compute the SHA512 hash of 32-byte private key. The hash is 64 bytes $sk_{expand} = SHA512(sk_seed)$. We call the first 32 bytes $sk_L$ and the last 32 bytes $sk_R$.</p>
+</li>
+<li>
+<p>Take $sk_L$ and prune by clearing the first three bit of the first byte and the highest bit of the last byte. Then the second highest bit of the last byte is set.</p>
+<blockquote>
+<pre><code>sk_L[0] &amp;= 248
+sk_L[31] &amp;= 127
+sk_L[31] |= 64
+</code></pre></blockquote>
+</li>
+</ul>
+<p>After the “hash and prune” steps, we now have $sk_{pruned}$.</p>
+<ul>
+<li>
+<p>The public key is the scalar multiplication of the pruned private key where $pk = sk_{pruned} \cdot G$.</p>
+</li>
+<li>
+<p>Eventually, the private key used to produce an Ed25519 signature (called the expanded private key) consists of the pruned first 32 bytes of private key and public key. $sk_{expand} = sk_L \parallel pk$.</p>
+</li>
+</ul>
+<h3 id="notes">Notes</h3>
+<ul>
+<li>
+<p>What does the pruning (also called bit twiddling, bit clamping) actually do? And why is it needed but not for ECDSA?</p>
+<p>We first rewrite the pruning algorithm bit manipulation in little-endian form:</p>
+<blockquote>
+<pre><code>sk_L[0] &amp;= 248  // 248 == 0b11111000 (1)
+sk_L[31] &amp;= 127 // 127 == 0b01111111 (2)
+sk_L[31] |= 64  // 64  == 0b01000000 (3)
+</code></pre></blockquote>
+<p>(1) is designed to clear the lowest three bits, useful to prevent small-subgroup attack. (2) and (3) are designed to clear the 256th bit and set the highest bit, useful to prevent a class of timing attack. Interestingly, these two attack vectors are not relevant for Ed25519 signing schemes, but for X25519 key exchange which relies on the same curve. For good hygiene and compatibility for possible key generation algorithm reuse, this is adopted by the RFC for key generation for <em>any</em> use cases.</p>
+<p>The Secp256k1 curve is defined in a prime-order group, but Ed25519 provides a group of order $h * r$ instead, where $h$ is a small cofactor (8) and $r$ is a 252-bit prime. This means that every subgroup of Ed25519 must have one of the following orders ${1, 2, 4, 8, r}$. Clearing three bits here basically multiplies the point by 8, making the point can possibly only be in the subgroup of order $r$.</p>
+<p>Again, this is not a relevant attack since the generator for the Ed25519 signing scheme is known and defined to be in a prime-order subgroup according to the RFC.</p>
+<p>Setting the highest bit has something to do with a particular way of doing point multiplication in Ed25519 curve called &ldquo;Montgomery Ladder&rdquo;. Based on the position of the highest bit, the multiplication is performed in variable time so a timing attack is possible to reveal some bits.</p>
+</li>
+<li>
+<p>How does this impact key derivation defined in BIP-32?</p>
+<p>Now that we know there is a special requirement on the Ed25519 private key: it must be hash and pruned before usage. BIP-32 does not enforce such a requirement for the master private key specified in Function 1 (Recall this is the first 32 bytes of <code>I = HMAC-SHA512(Key = &quot;Bitcoin seed&quot;, Data = seed)</code>).</p>
+<p>In addition, there are also no checks on the child private key derived from Function 2 $CKD_{sk}$ in BIP-32 would maintain this requirement. This breaks the homomorphic property for addition.</p>
+</li>
+</ul>
+<p>A &ldquo;quick&rdquo; workaround is, replacing the hashed data from $sk_i$ to the plain $sk$ before hash or pruning. Instead of <code>I = HMAC-SHA512(Key = cc_i, Data = 0x00 || sk_pruned || i)</code>, we compute $I$ as <code>I = HMAC-SHA512(Key = cc_i, Data = 0x00 || sk_seed || i)</code>.</p>
+<h2 id="a-generalized-form-of-bip-32-slip-0010">A Generalized form of BIP-32: SLIP-0010</h2>
+<p>This modification is specified in SLIP-0010 as a generalized version of BIP-32 that is fully compatible with the existing BIP-32, but also provides a generalized specification to make Ed25519 key derivation work.</p>
+<p>Similar to BIP-32, SLIP-0010 also defines the same three functions, with modifications to each one of them.</p>
+<p><strong>Function 1: Master seed $\rightarrow$ master private key</strong></p>
+<p>First calculating $I$: <code>I = HMAC-SHA512(Key = Curve, Data = seed)</code>. Curve here is a domain separator string that can be &ldquo;Bitcoin seed&rdquo; (same as BIP-32) or &ldquo;ed25519 seed&rdquo; that can logically distinguish the master private key used for different curves.</p>
+<p>Same as BIP-32, the master private key $sk_0$ is the first 32 bytes of $I$ and the master chaincode $cc_0$ is the last 32 bytes. Here $sk$ is assumed to be before &ldquo;hash and prune&rdquo; to be always valid.</p>
+<p><strong>Function 2: Parent private key $\rightarrow$ Child private key</strong></p>
+<p>While BIP-32 allows for normal and hardened child private key derivation, SLIP-0010 only allows hardened $i$ here. This is because $pk_i = sk_i \cdot G$ no longer holds for a non-hardened $i$. We would have to &ldquo;hash and prune&rdquo; $sk_i$ first to be able to compute $pk_i = sk_{prune} \cdot G$.</p>
+<ol>
+<li>Compute $I$.</li>
+</ol>
+<ul>
+<li>If $i$ is hardened ($i \geq 2^{31}$): <code>I = HMAC-SHA512(Key = cc_i, Data = 0x00 || sk_i || i)</code>.</li>
+<li>If $i$ is normal: Fail.</li>
+</ul>
+<ol start="2">
+<li>
+<p>(Unchanged) Compute child private key and child chaincode.</p>
+<p>$sk_i = I_L + sk_{parent} \mod n$</p>
+<p>$cc_i = I_R$</p>
+</li>
+</ol>
+<p><strong>Function 3: Parent public key $\rightarrow$ Child public key</strong></p>
+<p>This step is disallowed. Because the derived public key would not match with the derived private key which assumes it is not &ldquo;hash and prune&rdquo;-ed.</p>
+<p>The inability to induct public keys is, we can no longer set up a watch-only wallet for child public keys from the master public key. New address generation will always need to access the master private key.</p>
+<p><a href="https://input-output-hk.github.io/adrestia/static/Ed25519_BIP.pdf">BIP32-Ed25519</a> proposed a way for public key derivation by using the expanded private key $sk_{expand}$. However, there are restrictions on the max level of trees that can be only $2^{20}$ instead of $2^{32}$. Theoretically, a key recovery attack can be <a href="http://web.archive.org/web/20210513183118/https://forum.w3f.community/t/key-recovery-attack-on-bip32-ed25519/44">performed</a> when the attacker can observe transaction spent with some child private keys.</p>
+<p>In conclusion, we had examined BIP-32 in relation to the Secp256k1 and the Ed25519 curve. SLIP-0010 is designed to avoid the problem with non-linear key space addition to disallow the public key derivation. As a result, majority of the protocols supporting Ed25519 key derivation still prefer SLIP-0010 with only hardened child private key derivation as the only secure option.</p>
+<p>References:</p>
+<ol>
+<li><a href="https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki">https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki</a></li>
+<li><a href="https://github.com/satoshilabs/slips/blob/master/slip-0010.md">https://github.com/satoshilabs/slips/blob/master/slip-0010.md</a></li>
+<li><a href="https://www.jcraige.com/an-explainer-on-ed25519-clamping">https://www.jcraige.com/an-explainer-on-ed25519-clamping</a></li>
+<li><a href="https://input-output-hk.github.io/adrestia/static/Ed25519_BIP.pdf">https://input-output-hk.github.io/adrestia/static/Ed25519_BIP.pdf</a></li>
+<li><a href="http://web.archive.org/web/20210513183118/https://forum.w3f.community/t/key-recovery-attack-on-bip32-ed25519/44">http://web.archive.org/web/20210513183118/https://forum.w3f.community/t/key-recovery-attack-on-bip32-ed25519/44</a></li>
+</ol>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2023 </p>
+</footer>
+    </main>
+  </body>
+</html>
