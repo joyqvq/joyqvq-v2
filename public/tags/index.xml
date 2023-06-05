@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Hugo Serial Programmer</title>
-    <link>/hugo-theme-serial-programmer/tags/</link>
-    <description>Recent content in Tags on Hugo Serial Programmer</description>
+    <title>Tags on Joy&#39;s Personal Website</title>
+    <link>http://localhost:1313/tags/</link>
+    <description>Recent content in Tags on Joy&#39;s Personal Website</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <managingEditor>me@example.com (sharadcodes)</managingEditor>
-    <webMaster>me@example.com (sharadcodes)</webMaster>
+    <managingEditor>me@example.com (joy)</managingEditor>
+    <webMaster>me@example.com (joy)</webMaster>
     <copyright>2021 Janne Kemppainen All rights reserved</copyright>
-    <lastBuildDate>Thu, 04 Nov 2021 00:00:00 +0000</lastBuildDate><atom:link href="/hugo-theme-serial-programmer/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 28 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>hugo</title>
-      <link>/hugo-theme-serial-programmer/tags/hugo/</link>
-      <pubDate>Thu, 04 Nov 2021 00:00:00 +0000</pubDate>
-      <author>me@example.com (sharadcodes)</author>
-      <guid>/hugo-theme-serial-programmer/tags/hugo/</guid>
-      <description></description>
-    </item>
-    
-    <item>
-      <title>fiction</title>
-      <link>/hugo-theme-serial-programmer/tags/fiction/</link>
-      <pubDate>Sun, 12 Dec 1948 10:18:00 +0000</pubDate>
-      <author>me@example.com (sharadcodes)</author>
-      <guid>/hugo-theme-serial-programmer/tags/fiction/</guid>
+      <title>crypto</title>
+      <link>http://localhost:1313/tags/crypto/</link>
+      <pubDate>Fri, 28 Apr 2023 00:00:00 +0000</pubDate>
+      <author>me@example.com (joy)</author>
+      <guid>http://localhost:1313/tags/crypto/</guid>
       <description></description>
     </item>
     

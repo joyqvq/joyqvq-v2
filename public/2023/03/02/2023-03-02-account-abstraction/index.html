@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Abstraction, Alternatives to Private Key Wallets | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="http://localhost:1313assets/css/post.css" />
+  <script defer src="http://localhost:1313assets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="http://localhost:1313assets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="http://localhost:1313">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">Account Abstraction, Alternatives to Private Key Wallets</h2>
+          <small class="date">Thu Mar 2, 2023</small>
+          <div class="tags">
+            
+            <a href="http://localhost:1313tags/crypto" class="tag">crypto</a>
+            
+          </div>
+        </div>
+        <div class="content"><h2 id="a-practical-technical-review-on-account-abstractions-and-its-implementation">A practical technical review on account abstractions and its implementation.</h2>
+<p>Account abstraction is a recently deployed feature on Ethereum network. Previously, funds can only be spent by providing a valid signature over the transaction data. Under the private key wallet model, a digital signature attests as a witness for a transaction to be valid, and it is considered non-repudiable and final.</p>
+<p>However, such authentication methods can be considered as one of the barriers to entry when onboarding users given the key handling intricacies, and it is rather restrictive for new use cases of on-chain activities.</p>
+<p>What if we allow <em>any</em> authentication method for the user to define when executing a transaction? Account abstraction is proposed as a more generalized authentication model for transactions which allow for greater flexibility to evaluate transaction validity. In other words, we &ldquo;abstracted&rdquo; the authentication method for an account.</p>
+<p>In this essay we will explore the goal of account abstraction, main use cases, the architecture of the smart contracts and the user flow to interact with it.</p>
+<h2 id="goal-transaction-validity-extension">Goal: Transaction Validity Extension</h2>
+<p>When a user interacts with a blockchain, they need to submit a transaction to alter the state machine on-chain. Before account abstraction, transaction validity is defined rigidly by the protocol: an ECDSA signature, a simple nonce, and a sufficient account balance that can pay for the operation. If all these validity checks pass, the transaction can be accepted to the mempool and subsequently executed by the VM immediately, which alters the balance or other states of the state machine.</p>
+<p>To demonstrate a simple ERC-20 balance transfer from an Externally Owned Account (EOA), users must first package the call data, a valid nonce and into one transaction originating from the EOA, and provide a valid signature for execution. In other words, a transaction verification is tightly coupled with execution.</p>
+<p>An early <a href="https://blog.ethereum.org/2015/07/05/on-abstraction">essay</a> by Vitalik proposed the following idea:</p>
+<blockquote>
+<p>Every account should have a piece of &ldquo;verification code&rdquo; attached to it.</p>
+</blockquote>
+<p>A transaction can be spent from an account as long as the verification code that the account defines passes, the execution can happen in the state machine. In other words, the verification check can be custom defined and be completely decoupled from execution. As a result, the verification logic including the signature verification, gas payment and replay detection is &ldquo;abstract&rdquo; away from the core protocol and it is now loaded and enforced by the EVM.</p>
+<p>A very simple verification logic can be defined the following:</p>
+<ol>
+<li>
+<p>User generates a verification code offline and uses the hash of the verification code as an address.</p>
+</li>
+<li>
+<p>When the user wants to spend funds from the address, the user provides the preimage.</p>
+</li>
+<li>
+<p>The authentication method is evaluated to be true if the hash of the preimage matches with the address, the transaction is valid and the fund can be spent.</p>
+</li>
+</ol>
+<p>This somewhat resembles the Pay-To-Script-Hash model in Bitcoin: As long as the user provides a script matching the script hash and data, the script is evaluated to true by the state machine and will be executed right away.</p>
+<h2 id="architecture-overview">Architecture Overview</h2>
+<p>Now we understand the motivation for account abstraction (now we abbreviate AA), we can sketch out the necessary components to enable AA-enabled wallets to execute transactions with its customized verification logic.</p>
+<ul>
+<li>Define User Operations</li>
+</ul>
+<p>Since now we do not want to constrain the transaction validity check to signature verification, we extend the definition of a transaction data. To differentiate, we call a transaction here a <em>user operation</em> in the context of AA. A user operation is defined with some extra fields that are necessary for AA , and now let&rsquo;s compare it with transaction data.</p>
+<table>
+<thead>
+<tr>
+<th>Fields</th>
+<th>User Operation</th>
+<th>Normal Transaction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sender</code></td>
+<td>The account making the operation.</td>
+<td>The address of the sender that is signing the transaction has to be an EOA account.</td>
+</tr>
+<tr>
+<td><code>recipient</code></td>
+<td>N/A</td>
+<td>The receiving address for transferring value if it is an EOA; the contract address that will execute the code.</td>
+</tr>
+<tr>
+<td><code>nonce</code></td>
+<td>A sequentially incrementing counter for every operation for replay attack.</td>
+<td>Same effect, increment for each transaction.</td>
+</tr>
+<tr>
+<td><code>value</code></td>
+<td>N/A</td>
+<td>Value transferred.</td>
+</tr>
+<tr>
+<td><code>initCode</code></td>
+<td>Code needed to create an account on-chain for the first time.</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>callData</code></td>
+<td>The data to pass to the sender during the main execution.</td>
+<td>Optional field for arbitrary data.</td>
+</tr>
+<tr>
+<td><code>callGasLimit</code></td>
+<td>The amount of gas to allocate during the main execution call.</td>
+<td>Same.</td>
+</tr>
+<tr>
+<td><code>verificationGas</code></td>
+<td>The amount of gas to allocate for the verification step.</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>preVerificationGas</code></td>
+<td>The amount of gas to allocate for the bundler for pre-verification.</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>maxFeePerGas</code></td>
+<td>Max fee willing to be paid per gas. See <a href="https://eips.ethereum.org/EIPS/eip-1559">EIP-1559</a>.</td>
+<td>Same</td>
+</tr>
+<tr>
+<td><code>maxPriorityFeePerGas</code></td>
+<td>Max priority fee to be paid per gas. See <a href="https://eips.ethereum.org/EIPS/eip-1559">EIP-1559</a>.</td>
+<td>Same</td>
+</tr>
+<tr>
+<td><code>paymasterAndData</code></td>
+<td>Address of the paymaster sponsoring the transaction.</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><code>signature</code></td>
+<td>Data passed along with nonce during the verification step.</td>
+<td>A ECDSA signature committed to the transaction data by the sender&rsquo;s private key.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Define Alt Mempool for User Operations</li>
+</ul>
+<p>Unlike a transaction, a user operation decouples its verification with its execution. Therefore, the evaluation flow to accept it to a mempool requires a slightly different treatment.</p>
+<p>The first iteration of the account abstraction proposal defines a new OP_CODE to signify the VM for a special execution flow. An earlier <a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2938.md">EIP-2938</a> proposes a new transaction type called AA_TX_TYPE.</p>
+<p>Because this adds two additional OP_CODEs to the protocol, it is considered less desirable to implement compared to the accepted EIP-4337, which defines an alternative mempool that only accepts user operations and requires no consensus change.</p>
+<p><img src="/images/2023-03-02-mempool.jpg" alt="Mempool vs. Alt Mempool"></p>
+<ul>
+<li>Define Bundler</li>
+</ul>
+<p>Bundlers are introduced as a different actor interacting with the alt mempool. Its responsibility is to poll user operations, and call each AA-enabled wallet contract to run its custom verification logic with an verification cost, and decide whether the validity check passes. If the result is successful, the bundler organizes the user operations into a <em>bundled</em> transaction and submits for the main mempool for immediate execution.</p>
+<p>A bundler monitors the alt mempool for user operations and once a threshold is met, it signs a single transaction with its private key. A reference implementation and spec is provided <a href="https://github.com/eth-infinitism/bundler">here</a>.</p>
+<p>The role of the bundlers is very similar to the block builders that operate along the main mempool to build blocks. Their economic incentives are aligned in the <em>verification</em> fee market, rather than the <em>execution</em> fee market. Similarly, bundlers are required to stake on the network to ensure they are rewarded for behaving honestly and are slashed otherwise.</p>
+<h3 id="smart-contract-interfaces">Smart Contract Interfaces</h3>
+<ul>
+<li>User Wallet contract</li>
+</ul>
+<p>Any AA-enabled wallet has to implement the following interface for it to be considered in the alt mempool.</p>
+<p><code>validateUserOp</code>: This call validates the signature field from user operation (if any), and validates and increments the nonce.</p>
+<ul>
+<li>Entrypoint contract</li>
+</ul>
+<p>In order to interact with the alt mempool, the bundler invokes the entrypoint contract to perform corresponding verification checks for user operations it wants to bundle. An entrypoint contract is defined as a global singleton that is deployed once on the blockchain.</p>
+<p>It has the following key interfaces:</p>
+<ul>
+<li><code>handleOps</code>: This function defines two functionalities, one for verification and one for execution.
+<ul>
+<li>The verification loop first checks for <code>initData</code> in the user operation, if it is present, first creates the wallet. Otherwise, it invokes the wallet contract&rsquo;s <code>validateUserOp</code>, which runs the authentication logic and pays for the verification fee.</li>
+<li>The execution loop invokes each AA-enabled wallet contract to execute <code>callData</code>.</li>
+</ul>
+</li>
+<li><code>simulateHandleOp</code>: This call simulates the user operation.
+<img src="/images/2023-03-02-tx.jpg" alt="Architecture Overview"></li>
+</ul>
+<h3 id="transaction-lifecycle">Transaction Lifecycle</h3>
+<p>Now we have defined all the players involved and a few on-chain components to make account abstract happen, let&rsquo;s put them together:</p>
+<ol>
+<li>User defines its wallet contract according to the AA-enabled account interface.</li>
+<li>User submits its user operation to the alt mempool by using the RPC endpoint <code>eth_sendUserOperation</code>.</li>
+<li>The validation manager for the bundler manager calls <code>Entrypoint.simulateValidation</code> in the entrypoint contract, which would either create new AA wallet accounts or call each AA wallet account to validate user operation. If valid, the user operation is added to the alt mempool.</li>
+<li>The bundler scans for user ops in alt mempool and invokes <code>Entrypoint.handleOps</code> which validates and executes the calldata of each user operation. If a call to handle user operations is successful, the transaction is submitted via RPC endpoint &ldquo;eth_sendRawTransaction&rdquo;.</li>
+</ol>
+<h2 id="unlocking-new-use-cases">Unlocking New Use Cases</h2>
+<p>Since account abstraction is a rather generalized idea for arbitrary verification logic, it provides a nice umbrella model defining several compelling use cases.</p>
+<ul>
+<li>Signature Abstraction</li>
+</ul>
+<p>Now that the verification can be run according to any custom definition, as long as the signature verification can be compiled to a smart contract on-chain, we can invoke it as the verification logic. Instead of relying on the de-facto ECDSA signature scheme defined for an EOA, more signature schemes are unlocked for an AA-enabled account. For example, the BLS signature and post-quantum signature gated account can be quickly introduced to Ethereum without a protocol upgrade, since AA-based accounts can quickly replace its verification logic on-chain.</p>
+<p>With the helper function defined by <a href="https://eips.ethereum.org/EIPS/eip-1271">EIP-1271</a>, we can verify whether a signature on behalf of any given contract is valid.</p>
+<ul>
+<li>Permission Abstraction</li>
+</ul>
+<p>With account abstraction, defining more complex spending policy logic on-chain becomes more transparent and intuitive.</p>
+<ol>
+<li>
+<p><em>Multisig</em>: For organizations that need a k-of-n threshold approval setup, we can implement a AA-enabled wallet contract with validateUserOp.</p>
+</li>
+<li>
+<p><em>Multi-Factor Authentication</em>: To take one step further from multisig, we do not even need multiple signatures from EOAs for authentication. Instead, other authentication factors such as Face ID computed from Apple device enclave, session tokens from OAuth flow and even other users&rsquo; authentication data can be defined as part of the spending policy. For example, we can define a <code>validateUserOp</code> that needs to satisfy one of the policies to spend out of my AA-enabled account: A valid Apple enclave Secp256r1 signature generated by my Face ID is required; My friend Alice&rsquo;s Facebook login credential and my other friend Bob&rsquo;s ECDSA signature is required.</p>
+</li>
+<li>
+<p><em>Gas Abstraction</em>: Previously, any transaction spent from the EOA account is required to pay gas amount in ETH. This means a user needs to always pre-fund the account with sufficient ETH for any on-chain activities.</p>
+</li>
+</ol>
+<p>To relax such strenuous requirement for some transactions for a smoother user experience, account abstraction model enables (a) Sponsored transaction: Gas can be paid by a third party that is not the spending user; (b) Any token gas: Gas can be paid in any ERC-20 tokens instead of Ethereum.</p>
+<ul>
+<li>Atomic Multi-Operation</li>
+</ul>
+<p>Another use case for account abstraction is to have multiple user operations to require multiple user operations to validate. Here we introduce a new smart contract called an Aggregator contract that implements the following methods:</p>
+<ol>
+<li>
+<p><code>validateSignatures(userOps, signature)</code>: This takes in a list of user ops, reverts if the aggregated signature is invalid.</p>
+</li>
+<li>
+<p><code>validateUserOpSignature(userOp)</code>: This is a <em>helper</em> function that takes in a single user operation, returns a signature to be supplied in the User Operation <code>signature</code> field.</p>
+</li>
+<li>
+<p><code>aggregateSignatures(userOps)</code>: This is a <em>helper</em> function that returns the aggregated signature from individual signatures from each user operation.</p>
+</li>
+</ol>
+<p>We then extend the Entrypoint contract to also include <code>EntryPoint.handleAggregatedOps</code> that calls <code>Aggregator.validateSignatures</code>. If an account returns an aggregator during <code>Entrypoint.simulateValidation</code>, <code>handleAggregatedOps</code> is used instead of <code>handleOps</code></p>
+<p><img src="/images/2023-03-02-aggregator.jpg" alt="AA Account with Aggregator"></p>
+<h2 id="concluding-thoughts">Concluding Thoughts</h2>
+<p>In the author&rsquo;s opinion, account abstraction is an exciting direction for Ethereum and many other blockchains to reach mass adoption and unleash its full potential for generalized decentralized computing. It leverages the on-chain programs to ensure verification integrity in addition to execution integrity.</p>
+<p>Fundamentally speaking, this simplifies the responsibility of wallet softwares and would increase the participation of on-chain activities.</p>
+<p>There are many ideas and flavors of account abstractions being worked on, and here are some I find interesting:</p>
+<ol>
+<li><a href="https://squads.so/blog/what-is-account-abstraction-ethereum-vs-solana">Squad Protocol</a> highlights the account model on Solana that enables programs to manage other accounts using a Program derived addresses.</li>
+<li><a href="https://community.starknet.io/t/starknet-account-abstraction-model-part-1/781">Starknet</a> implements abstract accounts in StarkOS, very similar to EIP-4337.</li>
+<li><a href="https://era.zksync.io/docs/dev/developer-guides/aa.html#prerequisites">ZkSync</a> implements
+account abstraction with few extensions.</li>
+</ol>
+<p>Hope you enjoy the read! I can be reached at @joyqvq on Twitter.</p>
+<h2 id="references">References</h2>
+<ol>
+<li><a href="https://blog.ethereum.org/2015/07/05/on-abstraction">On Abstraction</a></li>
+<li><a href="https://eips.ethereum.org/EIPS/eip-4337">EIP-4337</a></li>
+<li><a href="https://github.com/ethereum/EIPs/blob/master/EIPS/eip-2938.md">EIP-2938</a></li>
+<li><a href="https://ethereum-magicians.org/t/implementing-account-abstraction-as-part-of-eth1-x/4020">EIP-4337 discussion</a></li>
+</ol>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2023 </p>
+</footer>
+    </main>
+  </body>
+</html>

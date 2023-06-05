@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Practical Overview on Secure Multi-Party Computation for Custody | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="http://localhost:1313assets/css/post.css" />
+  <script defer src="http://localhost:1313assets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="http://localhost:1313assets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="http://localhost:1313">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">Practical Overview on Secure Multi-Party Computation for Custody</h2>
+          <small class="date">Fri Apr 28, 2023</small>
+          <div class="tags">
+            
+            <a href="http://localhost:1313tags/crypto" class="tag">crypto</a>
+            
+          </div>
+        </div>
+        <div class="content"><h2 id="an-overview-of-secure-multi-party-computation-use-cases-in-cryptocurrency">An overview of Secure Multi-Party Computation use cases in cryptocurrency.</h2>
+<p>Multi-Party Computation describes the techniques that a number of parties with private inputs wish to compute a joint function of their inputs, without revealing anything but the output. A simple example is A and B would like to find who has more money in the bank account without needing to tell each other their bank account balance. Here we would like to learn the output of <code>max(balance_a, balance_b)</code> and <code>balance_a</code> and <code>balance_b</code> are the private inputs.</p>
+<p>In this essay we first present two building blocks:</p>
+<ol>
+<li>
+<p>Oblivious Transfer (OT) - This is the most simple construction where one party&rsquo;s private input is one of two values <code>(a, b)</code>, and the other party&rsquo;s private input is a choice <code>s = (0, 1)</code> that selects either one of the values.</p>
+</li>
+<li>
+<p>Garbled Circuit - This generalizes OT into a circuit of gates and wires where each gate is considered as an oblivious transfer with two inputs.</p>
+</li>
+</ol>
+<p>Then we use these two concepts in to describe Yao&rsquo;s Protocol, the first two-party computation protocol. From there we can extend it to the multi-party computation called the GMW protocol. We focus on the practical steps and intuitions and briefly discuss the security guarantees, rather than covering the security and formal proofs of the protocols.</p>
+<p>Eventually, we discuss one MPC application that is widely used in cryptocurrency custody. Cryptocurrency transaction signatures are computed jointly while each party only holds its own private key share without learning the other parties. In addition to the signature computation, several practical setups are discussed as well - key derivation and key refreshes.</p>
+<h2 id="building-block-1-oblivious-transfer">Building Block 1: Oblivious Transfer</h2>
+<p>A has two values <code>m_0</code>, <code>m_1</code> and B has a secret choice <code>s</code> that can be 0 or 1. Our goal here is to have A transfer the message where privacy is guaranteed:</p>
+<ol>
+<li>A does not learn about B&rsquo;s secret <code>s</code>.</li>
+<li>B does not learn about <code>m_(1-s)</code> from A (i.e. the message B does not choose).</li>
+</ol>
+<p><img src="/images/2023-04-28-mpc.png" alt="Oblivious Transfer"></p>
+<p>We describe the communications steps following the diagram above:</p>
+<ol>
+<li>A knows <code>m_0</code>, <code>m_1</code>, <code>a</code> (A&rsquo;s generated secret value). B knows <code>s</code>, <code>b</code> (B&rsquo;s secret value).</li>
+<li>B first does two things: (1) Computes his own key <code>k_s</code>. (2) Sends A a value <code>B</code> based on his choice <code>s</code>. $B = g^b$ if s = 0, $B = A*g^b$ if s = 1. Note that <code>B</code> does not reveal anything of <code>s</code>.</li>
+<li>Upon receiving value <code>B</code>, A does two things: (1) Computes two different keys <code>k_1</code> and <code>k_2</code>. (2) Encrypts <code>m_0</code> and <code>m_1</code> with <code>k_0</code> and <code>k_1</code> respectively and send both ciphertexts to B (<code>c_1</code> and <code>c_2</code>).</li>
+<li>B can only decrypt the ciphertext chosen by <code>c</code> that reveals the message of choice: <code>m_s = dec(c_s, k_s)</code>.</li>
+</ol>
+<p>By the end, we achieve the goals that A does not learn about <code>s</code> and B does not learn about the m that he does not choose. The cost of OT requires 3 rounds of communication and 2 rounds of executions. Let&rsquo;s trace the correctness of the two possible choice of <code>s</code> by plugging in the respective $k_0, k_1$ vs B value set:</p>
+<ul>
+<li>B chooses s = 0:</li>
+</ul>
+<p>$$m_0 = dec(c_0, k_s) = dec(enc(m_0, k_0), k_s) = dec(g^m_0 * B^a, k_s) = dec(g^m_0 * (g^b)^a, k_s) = dec(g^{m_0<em>a</em>b}, A/b) = dec(g^{m_0<em>a</em>b}, g^{a*b}) = m_0$$</p>
+<ul>
+<li>B chooses s = 1:</li>
+</ul>
+<p>$$m_1 = dec(c_1, k_s) = dec(enc(m_1, k_1), k_s) = dec(g^m_1 * (B/A)^a, k_s) = dec(g^m_1 * (A<em>g^b/A)^a, k_s) = dec(g^{m_1</em>a<em>b}, A/b) = dec(g^{m_1</em>a<em>b}, g^{a</em>b}) = m_1$$</p>
+<h2 id="building-block-2-garbled-circuit">Building Block 2: Garbled Circuit</h2>
+<p>A has the input to the given function, B learns the output of the function only but not the input. In other words, the function takes in an encrypted value of the input and can output the result.</p>
+<p>The basic idea here is to encrypt a circuit represented by wires and gates. To do this we assign a pair of keys <code>(k_0, k_1)</code> for every wire, such that for every gate, it is possible to compute the key for the output of the gate.</p>
+<p>For example, A and B with a private input a, b try to find out the result of AND(a,b) without learning the private input of each other. (Note that there is some probability for you to &ldquo;guess&rdquo; the other person&rsquo;s input if you pick a = 1 and output = 1, or if a = 1 and output = 0). Let&rsquo;s define the AND gate with 2 input wires (u, v) and 1 output wire (w). Each input wire are assigned with a pair of key <code>(k_u0, k_u1)</code> and <code>(k_v0, k_v1)</code> and we wish to compute the pair of key for wire w <code>(k_w0, k_w1)</code>. We map it to the possible value of an AND gate to a key table - we called it the garbled values:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>k_u0</td>
+<td>k_v0</td>
+<td>k_w0</td>
+</tr>
+<tr>
+<td>k_u0</td>
+<td>k_v1</td>
+<td>k_w0</td>
+</tr>
+<tr>
+<td>k_u1</td>
+<td>k_v0</td>
+<td>k_w0</td>
+</tr>
+<tr>
+<td>k_u1</td>
+<td>k_v1</td>
+<td>k_w1</td>
+</tr>
+</tbody>
+</table>
+<p>We then encrypt the keys of the gate in the following format. To take the first row as an example, we have the encrypted value of the output of the gate <code>k_w0</code> , encrypted with two of the input keys <code>k_u0</code> and <code>k_v0</code>. This guarantees that given <code>k_u0</code> and <code>k_v0</code>, only <code>k_w0</code> can be decrypted. In other words, the receiver of this table can decrypt the value of the output, without learning anything about <em>which</em> input values were used to compute it. This lookup table below is called a garbled gate.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>k_u0</td>
+<td>k_v0</td>
+<td>enc(k_u0, enc(k_v0, k_w0))</td>
+</tr>
+<tr>
+<td>k_u0</td>
+<td>k_v1</td>
+<td>enc(k_u0, enc(k_v1, k_w0))</td>
+</tr>
+<tr>
+<td>k_u1</td>
+<td>k_v0</td>
+<td>enc(k_u1, enc(k_v0, k_w0))</td>
+</tr>
+<tr>
+<td>k_u1</td>
+<td>k_v1</td>
+<td>enc(k_u1, enc(k_v1, k_w1))</td>
+</tr>
+</tbody>
+</table>
+<p>Now that we have garbled one gate, we can extend this garbled gate to many composed gates such that the output of one gate is used as an input for the next. Eventually, the final output garbled value can be decrypted to a plain value using a translation table. For example, <code>k_w0 -&gt; 0</code>, <code>k_w1 -&gt; 0</code>. Note that this should only be done at the final output value, not for any of the internal gates!</p>
+<h2 id="2pc-yaos-protocol">2PC: Yao&rsquo;s Protocol</h2>
+<p>Previously we described a toy example that each party has only 1 input and there is 1 gate. What happens if A and B have multiple inputs? And the gates are composed into multiple gates representing more complex functions? Yao&rsquo;s protocol applies to a representation of a boolean circuit with multiple gates and multiple inputs.</p>
+<p>The protocol is defined as follows:</p>
+<ol>
+<li>A and B each have n input values: <code>a_1...a_n</code> and <code>b_1...b_n</code>.</li>
+<li>A sends B the garbled gates for all gates in the circuit (the garbled circuit), along with all the keys corresponding to <code>a_1...a_n</code>. Here we define A&rsquo;s input wires: $w_{a1}&hellip;w_{an}$, B&rsquo;s input wires: $w_{b1}&hellip; w_{bn}$.</li>
+<li>Now that we have all keys for all A&rsquo;s inputs, how about the keys for all B&rsquo;s inputs? Here we perform <code>n</code> oblivious transfers in parallel for <code>b_1...b_n</code>. For each wire i, recall that A has <code>k_i0</code>, <code>k_i1</code> and B has a choice bit s. At the end of OT, B learns <code>k_is</code> and nothing else.</li>
+</ol>
+<p>On efficiency, we have <code>n</code> OT that each has 3 rounds of communication. Each gate has a table of 4 rows where each row requires 2 encryptions. With some optimization, each output requires 2 decryptions.</p>
+<h2 id="mpc-the-gmw-protocol">MPC: The GMW Protocol</h2>
+<p>This generalizes Yao protocol from 2 to n (&gt;= 2) parties with O(1) communication regardless of the size of the boolean circuit.</p>
+<p>Similar to Yao&rsquo;s protocol, the construction of gates still assigns two keys (garbled values) to each gate. Instead of just a random value, the randomness is a concatenation of the secret shared random values amongst all parties. This differs from the Yao&rsquo;s protocol in that instead of one party chooses the keys, here we have all parties contributing to the keys.</p>
+<p>For each gate, the party computes a 4x1 part of the table in parallel. Given the keys to each input wire, the key for the output wire is revealed. Instead of having one party to evaluate the gates in Yao&rsquo;s, all parties securely compute the evaluation <em>together</em> in GMW.</p>
+<h2 id="mpc-deployment-model-for-custody-setup">MPC Deployment Model for Custody Setup</h2>
+<p>Now that we have the basic form of a MPC protocol, we discuss one useful MPC application where multiple parties wish to compute a valid signature for a given signature scheme. Each party has one of the keyshares and would not learn any others&rsquo; keyshares at the end of computation.</p>
+<h3 id="compute-keyshares">Compute keyshares</h3>
+<p>The first step is to assign a key share to each party using DKG (distributed key generation). The goal here is to construct the private inputs for each signing party. The protocol is defined as follows:</p>
+<ol>
+<li>A generates sk_a and B generates sk_b.</li>
+<li>A sends B an encrypted secret key <code>c = enc(sk_a, n)</code> using the Paillier encryption public key <code>n</code>. A also sends B a proof that that <code>pk_a</code> is generated from <code>sk_a</code> using the homomorphic property.
+<ul>
+<li>A refresher on Paillier Encryption: Generate private key (p, q) and its public key n = pq. Encryption algorithm work as $enc(m; r) = (1+n)^x * r^n mod n^2$ where r is chosen s.t. gcd(r, n) = 1.</li>
+<li>This step is useful to make sure the secret key is committed and well-formed.</li>
+</ul>
+</li>
+<li>They learn about each other&rsquo;s public keys pk_a, pk_b and pk = pk_a + pk_b.</li>
+</ol>
+<h3 id="securing-computing-a-joint-signature">Securing Computing a Joint Signature</h3>
+<p>Now that each party has a secret share, we would like to compute the signature corresponding to a full private key (that either party should not have). The most well known signature schemes we cover here are ECDSA and EdDSA. You may wonder, how does one model a signature scheme in boolean circuits? <a href="https://eprint.iacr.org/2015/267.pdf">The random OT model</a> in this paper discusses the encoding of group elements and its field arithmetics in bit strings, which makes it possible to translate a signing scheme into a (large) circuit.</p>
+<p>ECDSA:</p>
+<ol>
+<li>A has <code>sk_a</code> and B has <code>sk_b</code>. Both learns about <code>(R_x, R_y) = sk_a * sk_b * G</code></li>
+<li>B generates an encryption of the value <code>k_b^(-1) * ( m' + R_x ⋅ sk_a)</code></li>
+</ol>
+<p>EdDSA:</p>
+<ol>
+<li>A has <code>r_a</code> and B hash <code>r_b</code>, both learns about <code>R = r_1 * G + r_2 * G</code>.</li>
+<li>Each computes: e = H(R, Q, m)</li>
+<li>B sends <code>s_2 = r_2 + sk_2 * e mod q</code> to A.</li>
+<li>A sends <code>s_1 = r_1 + sk_1 * e mod q</code> and <code>s = s_1 + s_2</code> to B.</li>
+</ol>
+<p>Note: <code>r</code> is chosen randomly instead of a function of the secret key and the message. Although still a valid signature, this makes the MPC produced EdDSA signature deviates from the <a href="https://www.rfc-editor.org/rfc/rfc8032">RFC</a>.</p>
+<p>Extension: While here we describe the 2PC version of signing, there are many frameworks and optimizations to accommodate threshold setup with reduced communication cost. <a href="https://eprint.iacr.org/2020/492.pdf">This paper</a> describes a widely productionized implementation that involves a preprocessing phase with 3 rounds of communications before the signature is known, and an non-interactive phase to produce a signature share.</p>
+<h3 id="key-derivation">Key derivation</h3>
+<p>Key derivation is an important cryptocurrency primitives that allows one master private key to derive a chain of private keys in a hierarchical way. This is useful to generate multiple deposit addresses (from the corresponding child public keys) while only needing to manage one or few private keys for a custodian. The goal here is to guarantee no single party has the master private key, but we can derive the public key and have each party hold random key shares of the child private keys.</p>
+<h3 id="key-refresh">Key Refresh</h3>
+<p>Another practical aspect of MPC custody is its ability to proactively refresh key shares. This is useful to protect against the scenario that some key shares can be compromised over time.</p>
+<ol>
+<li>Generate a randomness $r$.</li>
+<li>Update each private key share by adding or subtracting the same randomness such that the whole key share remains unchanged.
+$sk_a&rsquo; = sk_a - r \mod q$ and $sk_b&rsquo; = sk_b + r \mod q$.</li>
+</ol>
+<p>Some further extensions are discussed to adapt MPC for a large number of signing parties. <a href="https://github.com/ZenGo-X/white-city/blob/master/White-City-Report/whitecity_new.pdf">White City</a> constructed a set of permissioned facilitator using a trusted setup, allowing a set of permissionless parties of signers. This assumes a semi-authenticated broadcast channel.</p>
+<h2 id="references">References</h2>
+<ol>
+<li>
+<p>Oblivious Transfer and Garbled Circuits: <a href="https://crypto.stanford.edu/cs355/18sp/lec6.pdf">https://crypto.stanford.edu/cs355/18sp/lec6.pdf</a></p>
+</li>
+<li>
+<p>Tutorials on Yao&rsquo;s and BMR: <a href="https://cyber.biu.ac.il/event/the-5th-biu-winter-school/">https://cyber.biu.ac.il/event/the-5th-biu-winter-school/</a></p>
+</li>
+<li>
+<p>MPC custody: <a href="https://github.com/unboundsecurity/blockchain-crypto-mpc/blob/master/docs/Unbound_Cryptocurrency_Wallet_Library_White_Paper.md">https://github.com/unboundsecurity/blockchain-crypto-mpc/blob/master/docs/Unbound_Cryptocurrency_Wallet_Library_White_Paper.md</a></p>
+</li>
+<li>
+<p>Two party ECDSA: <a href="https://eprint.iacr.org/2017/552.pdf">https://eprint.iacr.org/2017/552.pdf</a></p>
+</li>
+</ol>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2023 </p>
+</footer>
+    </main>
+  </body>
+</html>
