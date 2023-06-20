@@ -9,6 +9,16 @@
   
   
     {
+      "id": "https://joywang.co/2023/06/10/2023-06-10-groth16/",
+      "title": "Groth16 Explained from the Beginning",
+      "content_text": "Overview of Proving systems and Where does Groth16 fit in The design space of zero knowledge proving systems is quite broad. Generally speaking, the choice of a proving system depends on the combinations of the polynomial commitment scheme and the interactive proof technique:\n Choice of polynomial commitments   Pairing based (e.g. KZG): Requires trusted setup Discrete log based (e.g. Bulletproof) Hashing (e.g. FRI)  Choice of polynomial interactive proof (IOP)   IP MIP Constant round IOP  Among these choices we study Groth16 in this essay with its main contributions in short verification time.",
+      "url": "https://joywang.co/2023/06/10/2023-06-10-groth16/",
+      "date_published": "2023-06-10 00:00:00 +0000 UTC",
+      "tags": ["crypto"]
+    }
+  
+  , 
+    {
       "id": "https://joywang.co/2023/04/28/2023-04-28-practical-mpc-for-custody/",
       "title": "Practical Overview on Secure Multi-Party Computation for Custody",
       "content_text": "An overview of Secure Multi-Party Computation use cases in cryptocurrency. Multi-Party Computation describes the techniques that a number of parties with private inputs wish to compute a joint function of their inputs, without revealing anything but the output. A simple example is A and B would like to find who has more money in the bank account without needing to tell each other their bank account balance. Here we would like to learn the output of max(balance_a, balance_b) and balance_a and balance_b are the private inputs.",

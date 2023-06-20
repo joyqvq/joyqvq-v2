@@ -9,7 +9,17 @@
     <managingEditor>me@example.com (joy)</managingEditor>
     <webMaster>me@example.com (joy)</webMaster>
     <copyright>2021 Janne Kemppainen All rights reserved</copyright>
-    <lastBuildDate>Fri, 28 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/tags/crypto/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sat, 10 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/tags/crypto/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Groth16 Explained from the Beginning</title>
+      <link>https://joywang.co/2023/06/10/2023-06-10-groth16/</link>
+      <pubDate>Sat, 10 Jun 2023 00:00:00 +0000</pubDate>
+      <author>me@example.com (joy)</author>
+      <guid>https://joywang.co/2023/06/10/2023-06-10-groth16/</guid>
+      <description>Overview of Proving systems and Where does Groth16 fit in The design space of zero knowledge proving systems is quite broad. Generally speaking, the choice of a proving system depends on the combinations of the polynomial commitment scheme and the interactive proof technique:
+ Choice of polynomial commitments   Pairing based (e.g. KZG): Requires trusted setup Discrete log based (e.g. Bulletproof) Hashing (e.g. FRI)  Choice of polynomial interactive proof (IOP)   IP MIP Constant round IOP  Among these choices we study Groth16 in this essay with its main contributions in short verification time.</description>
+    </item>
+    
     <item>
       <title>Practical Overview on Secure Multi-Party Computation for Custody</title>
       <link>https://joywang.co/2023/04/28/2023-04-28-practical-mpc-for-custody/</link>
