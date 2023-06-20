@@ -54,14 +54,14 @@
 <li>MIP</li>
 <li>Constant round IOP</li>
 </ul>
-<p><img src="../images/2023-06-10-proofs.png" alt="Proving Systems"></p>
+<p><img src="/images/2023-06-10-proofs.png" alt="Proving Systems"></p>
 <p>Among these choices we study Groth16 in this essay with its main contributions in short verification time. It requires a trusted setup that is circuit specific, and also requires a longer proving time.</p>
 <p>Here are the steps we will go through:</p>
 <ol>
 <li>From statements to circuit: When we want to prove a certain statement without revealing the secret (i.e. witness) itself, we first want to express the statement in the form of a circuit. By taking in the witnesses as inputs and showing that the output of the circuit is indeed evaluated at a value $y$, we convert a statement to a circuit. Even better, there are programming languages that can convert programs and constraints into circuits.</li>
 </ol>
 <p><em>Intermediate goal</em>: I (the prover) know a secret witness such that $C(x, w) = y$ where $x$ are public inputs.</p>
-<p><img src="../images/2023-06-10-gates.png" alt="An example circuit with input wires and gates"></p>
+<p><img src="/images/2023-06-10-gates.png" alt="An example circuit with input wires and gates"></p>
 <ol start="2">
 <li>From circuit to Quadratic Arithmetic Program: Now we have a circuit (potentially with many gates and wires) that expresses the statement, how can we evaluate it efficiently without revealing the witness? The intuition here is that if we can express the circuit in a form of one large equation, we can enforce all constraints by every gate of the circuit simultaneously. This is a &ldquo;quadratic&rdquo; equation that unless you do know the witness, it is probabilistically hard to find such a witness vector that satisfies the equation. This equation ($p(x)$) is called QAP.</li>
 </ol>
@@ -79,9 +79,9 @@
 <li>$\pi &lt;- simulate(R, \tau, \phi)$: An alternate way of generating a proof with the trapdoor itself, but without the common reference string $\sigma$.</li>
 </ol>
 <h2 id="circuit-to-qap">Circuit to QAP</h2>
-<p>To build a QAP from a circuit, we first draw out a circuit and label input and output of every multiplication gate (and ignore the addition gate). In this example we have 3 gates 1, 2, 3 with 3, 2, 1, 7, 5, 4 as inputs of some gates and 6, 48, 72 as outputs of some gates. We label them as w_1&hellip;w_9.</p>
+<p>To build a QAP from a circuit, we first draw out a circuit and label input and output of every multiplication gate (and ignore the addition gate). In this example we have 3 gates 1, 2, 3 with 3, 2, 1, 7, 5, 4 as inputs of some gates and 6, 48, 72 as outputs of some gates. We label them as $w_1&hellip;w_9$.</p>
 <p>We craft a polynomial such that $a_i(x)$ represents whether $w_i$ is the left input of gate $j$.</p>
-<p><img src="../images/2023-06-10-selector.png" alt="An example circuit with input wires and gates"></p>
+<p><img src="/images/2023-06-10-selector.png" alt="An example circuit with input wires and gates"></p>
 <p>Similarly, we have:</p>
 <ul>
 <li>$b_i(x)$ represents whether $w_i$ is the right input of gate $j$</li>
