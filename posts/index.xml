@@ -17,7 +17,7 @@
       <author>me@example.com (joy)</author>
       <guid>https://joywang.co/2023/06/10/2023-06-10-groth16/</guid>
       <description>Overview of Proving systems and Where does Groth16 fit in The design space of zero knowledge proving systems is quite broad. Generally speaking, the choice of a proving system depends on the combinations of the polynomial commitment scheme and the interactive proof technique:
- Choice of polynomial commitments   Pairing based (e.g. KZG): Requires trusted setup Discrete log based (e.g. Bulletproof) Hashing (e.g. FRI)  Choice of polynomial interactive proof (IOP)   IP MIP Constant round IOP  Among these choices we study Groth16 in this essay with its main contributions in short verification time.</description>
+ Choice of polynomial commitments   Pairing based (e.g. KZG): Requires trusted setup Discrete log based (e.g. Bulletproof) Hashing (e.g. FRI)  Choice of polynomial interactive proof (IOP)   IP-based MIP-based Constant round IOP  Among these choices we study Groth16 in this essay with its main contributions in short verification time.</description>
     </item>
     
     <item>

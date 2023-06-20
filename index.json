@@ -11,7 +11,7 @@
     {
       "id": "https://joywang.co/2023/06/10/2023-06-10-groth16/",
       "title": "Groth16 Explained from the Beginning",
-      "content_text": "Overview of Proving systems and Where does Groth16 fit in The design space of zero knowledge proving systems is quite broad. Generally speaking, the choice of a proving system depends on the combinations of the polynomial commitment scheme and the interactive proof technique:\n Choice of polynomial commitments   Pairing based (e.g. KZG): Requires trusted setup Discrete log based (e.g. Bulletproof) Hashing (e.g. FRI)  Choice of polynomial interactive proof (IOP)   IP MIP Constant round IOP  Among these choices we study Groth16 in this essay with its main contributions in short verification time.",
+      "content_text": "Overview of Proving systems and Where does Groth16 fit in The design space of zero knowledge proving systems is quite broad. Generally speaking, the choice of a proving system depends on the combinations of the polynomial commitment scheme and the interactive proof technique:\n Choice of polynomial commitments   Pairing based (e.g. KZG): Requires trusted setup Discrete log based (e.g. Bulletproof) Hashing (e.g. FRI)  Choice of polynomial interactive proof (IOP)   IP-based MIP-based Constant round IOP  Among these choices we study Groth16 in this essay with its main contributions in short verification time.",
       "url": "https://joywang.co/2023/06/10/2023-06-10-groth16/",
       "date_published": "2023-06-10 00:00:00 +0000 UTC",
       "tags": ["crypto"]

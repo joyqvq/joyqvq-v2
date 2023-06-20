@@ -50,8 +50,8 @@
 <li>Choice of polynomial interactive proof (IOP)</li>
 </ol>
 <ul>
-<li>IP</li>
-<li>MIP</li>
+<li>IP-based</li>
+<li>MIP-based</li>
 <li>Constant round IOP</li>
 </ul>
 <p><img src="/images/2023-06-10-proofs.png" alt="Proving Systems"></p>
@@ -73,10 +73,10 @@
 <h3 id="end-product">End Product</h3>
 <p>At the end of this post we will end up with the following algorithm:</p>
 <ol>
-<li>$(\sigma, \tau) &lt;- setup(R)$: The setup takes in some randomness and produce a common reference string (CRS) $\sigma$ (a common value that both the proving and verifying step can use) and a trapdoor $\tau$ (a bypassing value that can be used for proving without CRS).</li>
-<li>$\pi &lt;- prove(R, \sigma, \phi, \omega)$: The proving algorithm takes in CRS ($\sigma$), the statement $\phi$ and the witness $\omega$ and returns a proof $\pi$.</li>
-<li>$0,1 &lt;- verify(R, \sigma, \phi, \pi)$: The verifying algorithm takes in the proof, the statement and the common reference</li>
-<li>$\pi &lt;- simulate(R, \tau, \phi)$: An alternate way of generating a proof with the trapdoor itself, but without the common reference string $\sigma$.</li>
+<li>$(\sigma, \tau) \leftarrow setup(R)$: The setup takes in some randomness and produce a common reference string (CRS) $\sigma$ (a common value that both the proving and verifying step can use) and a trapdoor $\tau$ (a bypassing value that can be used for proving without CRS).</li>
+<li>$\pi \leftarrow prove(R, \sigma, \phi, \omega)$: The proving algorithm takes in CRS ($\sigma$), the statement $\phi$ and the witness $\omega$ and returns a proof $\pi$.</li>
+<li>$0,1 \leftarrow verify(R, \sigma, \phi, \pi)$: The verifying algorithm takes in the proof, the statement and the common reference</li>
+<li>$\pi \leftarrow simulate(R, \tau, \phi)$: An alternate way of generating a proof with the trapdoor itself, but without the common reference string $\sigma$.</li>
 </ol>
 <h2 id="circuit-to-qap">Circuit to QAP</h2>
 <p>To build a QAP from a circuit, we first draw out a circuit and label input and output of every multiplication gate (and ignore the addition gate). In this example we have 3 gates 1, 2, 3 with 3, 2, 1, 7, 5, 4 as inputs of some gates and 6, 48, 72 as outputs of some gates. We label them as $w_1&hellip;w_9$.</p>
@@ -87,32 +87,32 @@
 <li>$b_i(x)$ represents whether $w_i$ is the right input of gate $j$</li>
 <li>$c_i(x)$ represents whether $w_i$ is the output of gate $j$</li>
 </ul>
-<p>Eventually, we end up with an evaluation $p(x) = (\sum_{i = 0}^l w_i a_i(x))(\sum_{i = 0}^l w_i b_i(x)) - (\sum_{i = 0}^l w_i c_i(x)) = 0$. This loosely makes sense if you generally agree that &ldquo;all left inputs of all multiplication gates multiply all of its right inputs sums up to all output gates&rdquo;.</p>
-<p>A technique we can use is by checking randomly at $x = r_1&hellip;r_i$, $p(x)$ is always evaluated to 0. Here we introduce a vanishing polynomial defined as $V(x) = \prod_{i = 0}^n (x - r_i)$. Since we know V(x) always evaluated to 0 for $x = r_1&hellip;r_q$, we can conclude that:</p>
+<p>Eventually, we end up with an evaluation $p(x) = (\sum_{i = 0}^l w_i a_i(x))(\sum_{i = 0}^l w_i b_i(x)) - \sum_{i = 0}^l w_i c_i(x) = 0$. This loosely makes sense if you generally agree that &ldquo;all left inputs of all multiplication gates multiply all of its right inputs sums up to all output gates&rdquo;.</p>
+<p>A technique we can use is by checking randomly at $x = r_1&hellip;r_i$, $p(x)$ is always evaluated to 0. Here we introduce a vanishing polynomial defined as $V(x) = \prod_{i = 0}^n (x - r_i)$. Since we know V(x) always evaluated to 0 for $x = r_1&hellip;r_n$, we can conclude that:</p>
 <p>$p(x) = 0$ if only if $p(x)$ divides by $V(x)$. i.e. There exists a quotient polynomial $q(x)$ such that $p(x) = V(x)q(x)$.</p>
-<p>To make things a bit easier later, r_1&hellip;r_q are actually $\tau$&hellip;$\tau^q$ so $V(x) = \prod_{q = 0}^m (x - \tau^q)$.</p>
+<p>To make things a bit easier later, $r_1&hellip;r_n$ can actually be represented as $\tau$&hellip;$\tau^n$ so $V(x) = \prod_{i = 0}^n (x - \tau^i)$.</p>
 <h2 id="qap-to-snark">QAP to SNARK</h2>
-<p>The general idea to prove the equation above in the exponentiation such that no inputs w_i will be revealed.</p>
-<p>That is, if this holds true: $(\sum_{i = 0}^l w_i a_i(x))(\sum_{i = 0}^l w_i b_i(x)) - (\sum_{i = 0}^l w_i c_i(x)) = V(x)q(x)$, then raising it to the power should still hold true: $g^{(\sum_{i = 0}^l w_i a_i(x))(\sum_{i = 0}^l w_i b_i(x)) - (\sum_{i = 0}^l w_i c_i(x))} = g^{V(x)q(x)}$ for some random value $\tau$.</p>
+<p>The general idea to prove the equation above in the exponentiation such that no inputs $w_i$ will be revealed.</p>
+<p>That is, if this holds true: $(\sum_{i = 0}^l w_i a_i(x))(\sum_{i = 0}^l w_i b_i(x)) - \sum_{i = 0}^l w_i c_i(x) = V(x)q(x)$, then raising it to the power should still hold true: $g^{(\sum_{i = 0}^l w_i a_i(x))(\sum_{i = 0}^l w_i b_i(x)) - \sum_{i = 0}^l w_i c_i(x)} = g^{V(x)q(x)}$ for some random value $\tau$.</p>
 <h3 id="preprocessing-phase">Preprocessing Phase</h3>
-<p>During the preprocessing phase, we generate the following parameters that can be used in proving and verifying.</p>
-<p>The first phase we call it the power of tau by calculating $g^{\tau}, g^{\tau^2}, &hellip; , g^{\tau^m}$. Note that this does not involve variables related to the circuit. In fact, there are popular ceremonies that are done before so you can reasonably trust and download these parameters.</p>
+<p>During the preprocessing phase, we generate the following parameters that can be used commonly referenced during proving and verifying.</p>
+<p>The first phase we call it the power of tau by calculating $g^{\tau}, g^{\tau^2}, &hellip; , g^{\tau^m}$. Note that this does not involve variables related to the circuit. In fact, there are past ceremonies that are done before so you can reasonably trust and download these parameters.</p>
 <p>In addition, we calculate the following values based on $\tau$: $g^{a_i(\tau)}, g^{b_i(\tau)}, g^{c_i(\tau)}$ for all $i = 1&hellip;m$. Since all $a_i, b_i, c_i$ are circuit dependent, we call this the circuit specific trusted setup.</p>
-<p>We also define the verifying key as following $g^{V(\tau)}$.</p>
-<h3 id="linear-pcp-based-snark-an-insure-strawman">Linear PCP based SNARK: An Insure Strawman</h3>
+<h3 id="linear-pcp-based-snark-an-insure-strawman-example">Linear PCP based SNARK: An Insure Strawman Example</h3>
 <p>Remember we want to show we know all $w_i$. Here we calculate each terms related to w_i (on the left hand side) and the term related to q (on the right hand side):</p>
-<p>$\pi_1 = g^{\sum_{i = 0}^m w_i \cdot a_i(\tau)}$</p>
-<p>$\pi_2 = g^{\sum_{i = 0}^m w_i \cdot b_i(\tau)}$</p>
-<p>$\pi_3 = g^{\sum_{i = 0}^m w_i \cdot c_i(\tau)}$</p>
-<p>$\pi_4 = g^{q(\tau)}$</p>
+<p>$$\pi_1 = g^{\sum_{i = 0}^m w_i \cdot a_i(\tau)}$$</p>
+<p>$$\pi_2 = g^{\sum_{i = 0}^m w_i \cdot b_i(\tau)}$$</p>
+<p>$$\pi_3 = g^{\sum_{i = 0}^m w_i \cdot c_i(\tau)}$$</p>
+<p>$$\pi_4 = g^{q(\tau)}$$</p>
 <p>It is not hard to see the first $\pi_1,2,3$ are not hard to compute with the help of $g^{a_i(\tau)}, g^{b_i(\tau)}, g^{c_i(\tau)}$. $\pi_4$ can be computed with the help of $g^{\tau}, g^{\tau^2}, &hellip; , g^{\tau^m}$. Either needs to know $\tau$!</p>
-<p>The verifier can check $e(\pi_1, \pi_2) / e(\pi_3, g) = e(g^{V(\tau)}, \pi_4)$.</p>
-<p>We can easily see that this is evaluated to true since $e(\pi_1, \pi_2) = e(g^{\sum_{i = 0}^m w_i \cdot a_i(x) \cdot \sum_{i = 0}^m w_i \cdot b_i(x)}, g)$, $e(\pi_3, g) = e(g^{\sum_{i = 0}^m w_i \cdot c_i(x)}, g)$ and $RHS = e(g^{V(x)q(x)}, g)$.</p>
-<h3 id="linear-pcp-based-snark-v2-aka-groth16">Linear PCP based SNARK: V2 (aka Groth16)</h3>
-<p>Now that we are familiar with what the protocol looks like with a simple construction, we now take a look at Groth16 which uses the same ingredient but a slightly modified structure to make the proof more efficient and secure.</p>
+<p>The verifier can check the following:</p>
+<p>$$e(\pi_1, \pi_2) / e(\pi_3, g) = e(g^{V(\tau)}, \pi_4)$$</p>
+<p>We can easily see that this is evaluated to true since $e(\pi_1, \pi_2) = e(g^{\sum_{i = 0}^m w_i \cdot a_i(x) \cdot \sum_{i = 0}^m w_i \cdot b_i(x)}, g)$, $e(\pi_3, g) = e(g^{\sum_{i = 0}^m w_i \cdot c_i(x)}, g)$ and $RHS = e(g^{V(x)q(x)}, g)$. The division of $e(\pi_1, \pi_2) / e(\pi_3, g)$ will yield $p(x)$ which is equal to $V(x)q(x)$.</p>
+<h3 id="linear-pcp-based-snark-v2-groth16">Linear PCP based SNARK V2: Groth16</h3>
+<p>Now that we are familiar with what the protocol looks like with a simple construction (albeit missing few constraints that makes it insecure, but we ignore the details here), we now take a look at Groth16 which uses the same ingredient but a slightly modified structure to make the proof more efficient and secure.</p>
 <h4 id="modified-trusted-crs">Modified Trusted CRS</h4>
 <p>In addition to $\tau$, we introduce $\alpha$ and $\beta$.</p>
-<p>Hence we include two additional proving keys:</p>
+<p>Hence we include two additional CRSs:</p>
 <ul>
 <li>$g^{\alpha}$, $g^{\beta}$, $g^{\beta(a_i(\tau) + \alpha(b_i(\tau)) + c_i(\tau))}$. You will see in a second how we can save a pairing by introducing $\alpha$ and $\beta$.</li>
 <li>Plus the ones you&rsquo;ve seen before:
@@ -123,12 +123,13 @@
 </li>
 </ul>
 <h4 id="modified-proof">Modified Proof</h4>
+<p>We introduce the extra $g^\alpha$ and $g^\beta$ without much issue:</p>
 <p>$\pi_1' = g^{\alpha + \sum_{i = 0}^m w_i \cdot a_i(x)}$</p>
 <p>$\pi_2' = g^{\beta + \sum_{i = 0}^m w_i \cdot b_i(x)}$</p>
 <p>$\pi_3' = g^{\sum_{i = 0}^m c_i \cdot (\beta a_i(\tau) + b_i(\tau) + c_i(\tau) + V(\tau)q(\tau))}$</p>
 <h4 id="modified-verifier-check">Modified Verifier Check</h4>
 <p>$e(\pi_1, \pi_2) = e(\pi_3, g)e(g^{\alpha}, g^{\beta})$</p>
-<p>The math to derive this is quite clever by using the term independent coefficients.</p>
+<p>The math to show this is quite clever by using the term independent coefficients.</p>
 <p>$LHS = e(g^{(\alpha + \sum_{i = 0}^m w_i \cdot a_i(x))(\beta + \sum_{i = 0}^m w_i \cdot a_i(x))}, g)$</p>
 <p>Take the product of each term:</p>
 <p>$LHS = e(g^{\alpha\beta + \alpha \sum_{i = 0}^m w_i \cdot b_i(x) + \alpha \sum_{i = 0}^m w_i \cdot b_i(x) + \sum_{i = 0}^m w_i \cdot a_i(x) + \sum_{i = 0}^m w_i \cdot b_i(x)}, g)$</p>
@@ -138,6 +139,15 @@
 <p>$RHS = e(g^{\sum_{i = 0}^m w_i (\beta a_i(\tau) + \alpha b_i(\tau) + c_i(\tau)) + \sum_{i = 0}^m w_i a_i(\tau) + \sum_{i = 0}^m w_i b_i(\tau) + \alpha\beta}, g)$.</p>
 <p>Since $\alpha$ and $\beta$ are independent of term i, they can be extracted from the summation:</p>
 <p>$RHS = e(g^{\beta \sum_{i = 0}^m w_i a_i(\tau) + \alpha \sum_{i = 0}^m w_i b_i(\tau) + \sum_{i = 0}^m w_i a_i(\tau) + \sum_{i = 0}^m w_i b_i(\tau) + \alpha\beta}, g) = LHS$.</p>
+<h2 id="comments">Comments</h2>
+<ul>
+<li>
+<p>For the simplicity of this essay, $\gamma$ and $\delta$ are intentionally left out. They are additional secret values generated during trusted setup. Using them are intended to make sure some product values are independent.</p>
+</li>
+<li>
+<p>CRS vs. Proving key, Verifying key: While the original paper refers to CRS used for proving and verifying, they can in fact be separated for different purpose.</p>
+</li>
+</ul>
 <h2 id="evaluations">Evaluations</h2>
 <p>When evaluating a non-interactive proving system, we generally care about the following metrics:</p>
 <ol>
@@ -145,6 +155,12 @@
 <li>Proving time: Dependent on the number of multiplication gates (n) and the number of wires (m) and size of statement (l). For Groth16, it requires $(m+3n-l)$ exponentiations.</li>
 <li>Proof size: Consists of 3 group elements.</li>
 <li>Verifying time: Requires 3 pairings and $l$ exponentiations.</li>
+</ol>
+<h1 id="references">References</h1>
+<ol>
+<li><a href="https://eprint.iacr.org/2016/260.pdf">https://eprint.iacr.org/2016/260.pdf</a></li>
+<li><a href="https://www.zeroknowledgeblog.com/index.php/groth16">https://www.zeroknowledgeblog.com/index.php/groth16</a></li>
+<li><a href="https://www.youtube.com/watch?v=I7TXIHXamwM">https://www.youtube.com/watch?v=I7TXIHXamwM</a></li>
 </ol>
 </div>
       </section>
