@@ -9,7 +9,16 @@
     <managingEditor>me@example.com (joy)</managingEditor>
     <webMaster>me@example.com (joy)</webMaster>
     <copyright>2021 Janne Kemppainen All rights reserved</copyright>
-    <lastBuildDate>Sat, 10 Jun 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 04 Sep 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A Tale of Privacy-focused Transactions</title>
+      <link>https://joywang.co/2023/09/04/2023-07-15-tale-of-privacy-tx/</link>
+      <pubDate>Mon, 04 Sep 2023 00:00:00 +0000</pubDate>
+      <author>me@example.com (joy)</author>
+      <guid>https://joywang.co/2023/09/04/2023-07-15-tale-of-privacy-tx/</guid>
+      <description>A Tale of Privacy-focused Transactions Blockchains had been developed under one public verifiable state machine, where all transactions are sequenced globally under consensus. What comes as a tradeoff to providing a consistent and shared state, blockchain suffers from the fact that all of the transactions on the blockchain are viewable from the public ledger by anyone. The privacy and security concerns had posed many risks and hindered adoption of cryptocurrencies as digital cash.</description>
+    </item>
+    
     <item>
       <title>Groth16 Explained from the Beginning</title>
       <link>https://joywang.co/2023/06/10/2023-06-10-groth16/</link>
