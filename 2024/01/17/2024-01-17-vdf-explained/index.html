@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verifiable Delay Function Explained with Applications | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="https://joywang.coassets/css/post.css" />
+  <script defer src="https://joywang.coassets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="https://joywang.coassets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="https://joywang.co">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">Verifiable Delay Function Explained with Applications</h2>
+          <small class="date">Wed Jan 17, 2024</small>
+          <div class="tags">
+            
+            <a href="https://joywang.cotags/crypto" class="tag">crypto</a>
+            
+          </div>
+        </div>
+        <div class="content"><h2 id="verifiable-delay-function-explained-with-applications">Verifiable Delay Function Explained with Applications</h2>
+<p>Verifiable Delay Function is a useful cryptographic primitive that has a wide range of applications such as randomness beacon and proof of replication. Similar to zero knowledge proving systems, the output of a verifiable delay function is slow to compute and requires sequential computation, but can be efficiently verified. Unlike Proof of Work that parallel work can be performed across different machines, VDF is required to perform sequentially and cannot be parallelized.</p>
+<p>We first define what is a verifiable delay function, then discuss its required properties. Then we go over a few constructions that are widely deployed in applications and a CLI tool for an example.</p>
+<p>We start with a naive VDF construction chaining hash functions, i.e. <code>output = H(H(H...H(A)))</code>. To compute the output, the evaluation cannot be parallelized, because the result of a previous step is used as an input for the current step. However, to verify the result it is required to compute the chaining again, so it is not efficient to verify.</p>
+<h1 id="definitions-and-properties">Definitions and Properties</h1>
+<p>A VDF is defined as a tuple of the following 3 functions:</p>
+<ol>
+<li>
+<p><code>setup(param) =&gt; (ek, vk)</code>: Given a parameter, outputs an evaluation key and a verifying key.</p>
+</li>
+<li>
+<p><code>eval(ek, x) =&gt; y, pi</code>: Using an input and the evaluation key, evaluate to an output and a proof. Note this step is sequential and cannot be parallelized.</p>
+</li>
+<li>
+<p><code>verify(vk, x, y, pi) =&gt; true/false</code>: Using the verifying key, input, output, and the proof, verifies that the output is indeed computed from the input.</p>
+</li>
+</ol>
+<p><img src="../images/2024-01-17-vdf.png" alt="Algorithms for VDF"></p>
+<p>What are the required properties for the VDF algorithms?</p>
+<ol>
+<li>
+<p>Correctness: A correct output should always be verified.</p>
+</li>
+<li>
+<p>Soundness: The possibility to verify an incorrect output is negligible.</p>
+</li>
+<li>
+<p>Sequentiality: An honest party can evaluate the output in t sequential steps.</p>
+</li>
+<li>
+<p>Decodability: Given the output, proof and the evaluation key, the input can be decoded.</p>
+</li>
+<li>
+<p>Incremental: Using the same ek and vk, different difficulties can be supported. That is, the time parameter is only required at the evaluation step, not the setup, so a different time delay does not require a different setup.</p>
+</li>
+</ol>
+<h2 id="weak-vs-strong-vdf">Weak vs. Strong VDF</h2>
+<p>We distinguish weak and strong VDF here, this is useful for certain constructions discussed later. A weak VDF allows for a certain amount of parallelism is needed to give an advantage.</p>
+<h1 id="popular-constructions">Popular Constructions</h1>
+<h2 id="wesolowskis-vdf">Wesolowski&rsquo;s VDF</h2>
+<p>This construction can be first defined as an interactive protocol, then it can be transformed to a non-interactive one via Fiat Shamir Heuristics.</p>
+<p>First we define $g$ is a group element in group G of an unknown finite order for which both input and output of VDF is in.</p>
+<p>The evaluation step computes $y = g^{2^t}$. Then pick a random prime $l$ that is in ${1&hellip;2^{2\lambda}}$. Output $y$ and its evaluation proof $\pi = g^{2^t/l}$. Why is this slow to compute? Because $g$ has unknown order, that is, we do not know $|G|$ so fast exponentiation is not possible. Otherwise we can reduce it to $g^{2^t \mod |G|}$ then we have $2^{|G|} = 1$.</p>
+<p>The verification step first computes: $r = 2^t \mod l$, then checks $\pi^l \cdot g^r = y$. This is relatively fast to run.</p>
+<p>To choose the group G, there are generally two options.</p>
+<ol>
+<li>
+<p>RSA: Use $N = p \cdot q$. This makes the evaluation step slow to compute since p and q are unknown. This requires an MPC trusted setup such that no party should learn the factorization p, q.</p>
+</li>
+<li>
+<p>Class groups of an imaginary quadratic field: This describes a group that are the quotients of $P(K)/I(K)$ where $K$ is a number field and $I(K)$ is the set of fractional ideals of K. We will leave out the algebraic details here, but we know this does not require a trusted setup and we need to define a large prime discriminant.</p>
+</li>
+</ol>
+<h2 id="a-very-similar-one-pietrzak">A Very Similar one: Pietrzak</h2>
+<p>To run setup, first we choose a time parameter $T$, a finite abelian group $G$ of unknown order and a hash bytes to element function H. (Same as Wesolowski&rsquo;s.)</p>
+<p>To evaluate the output, compute $y = g^(2^(T/2))$ where $g = H(x)$. This step takes $O(\sqrt{T})$ group operations, which is slightly more efficient than Wesolowski&rsquo;s that takes $O(T)$.</p>
+<p>To verify the output and proof, the verifier first picks $r$ in ${1, &hellip; 2^l}$, then check: $v^r * z = (g^r * v)^{2^{T/2}}$.</p>
+<ol start="2">
+<li>Univariate permutation polynomials</li>
+</ol>
+<p>This construction uses the conclusion that given a permutation polynomial of degree t over finite field $F_p$, inverting it requires computing a polynomial GCD which is time extensive and sequential. It takes $O(log(p))$ multiplications of dense polynomials and it cannot be done in t steps on at most $O(t^2)$ processors. This is considered a weak VDF since there can be some parallelization.</p>
+<ol start="4">
+<li>Isogeny-based VDF</li>
+</ol>
+<p>This class of construction requires more advanced cryptographic <a href="https://eprint.iacr.org/2019/166.pdf">knowledge</a> to understand. On a high level, the evaluation step is a random walk of length depending on difficulty. The verification step leverages pairings which can be done very quickly.</p>
+<h1 id="applications">Applications</h1>
+<ol>
+<li>Randomness beacon</li>
+</ol>
+<p>Randomness beacon describes the last revealer advantage problem when generating randomness collectively. When each party is committed to the partial randomness, the last revealer can wait and decide whether to reveal his partial randomness based on the aggregated randomness result.</p>
+<p>To make the randomness unbiased and hard to manipulate, we use an VDF phase immediately after all parties revealed their randomness. This is to prevent anyone from anticipating what the next seed might be, because the fast hash function is replaced by a very long computation.</p>
+<p>One specific example is leader election during proof of stake consensus. The leader is selected based on the output of VDF after all validators contributed their randomness. <a href="https://ethresear.ch/t/minimal-vdf-randomness-beacon/3566">Ethereum</a> uses VDF for leader election with strong safety and liveness guarantee.</p>
+<ol start="2">
+<li>Proof of data replication</li>
+</ol>
+<p>Proof of replication is an application that requires the server to dedicate unique storage for the data even if the data is available from another public source.</p>
+<p>Recall that for a decodable verifiable delay function, the evaluation should take a long time but the decoding is relatively fast.</p>
+<p>When storing the data, the server first  breaks the data into n blocks (b_1&hellip;b_n) and make n evaluations (y_1&hellip;y_n) where y_i = eval(ek, b_i || H(id || i)). When a verifier requests a copy, the server can return y_i and the verifier can quickly get the b_i with fast decoding. Note that if the server has not stored the data it cannot return y_i, even though it might get b_i from the public. Therefore this scheme ensures the unique storage of certain data.</p>
+<h1 id="try-it-out">Try it out</h1>
+<p>Here we use the CLI provided by this <a href="https://github.com/MystenLabs/fastcrypto">repo</a>. This implements Wesolowskis' VDF construction discussed before.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cargo build --bin vdf-cli
+
+target/debug/vdf-cli evaluate --discriminant cd711f181153e08e08e5ba156db0c4e9469de76f2bd6b64f068f5007918727f5eaa5f6a0e090f82682a4ebf87befdea8f1253265d700ee3ca6b0fdb2677c633c7f37b62f0e0c13b402def0ba9abaf15e4c53bfb6bda0c7a0cad4439864af3eb9af6d6c4b10286eb8ff5e2de5b009196bc60c3000fde8d4b89b7674e61bc2d23f --iterations <span style="color:#ae81ff">10</span>
+Output: 0000c7494cc791f1c26547fd9deb5d6fa73bc30895bea883f4a6d411e3c5ad004c80abb8dc3ddc0dd5311b74f7ade87eb219a80c9157bb8969b140e7cd2ea9c4330647e4afcdeb5d1c90596c009a31e4d81a11245a1957b21ae46f9e2b4ddcd7e4081001
+Proof:  <span style="color:#ae81ff">04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</span>
+
+
+target/debug/vdf-cli verify --discriminant cd711f181153e08e08e5ba156db0c4e9469de76f2bd6b64f068f5007918727f5eaa5f6a0e090f82682a4ebf87befdea8f1253265d700ee3ca6b0fdb2677c633c7f37b62f0e0c13b402def0ba9abaf15e4c53bfb6bda0c7a0cad4439864af3eb9af6d6c4b10286eb8ff5e2de5b009196bc60c3000fde8d4b89b7674e61bc2d23f --iterations <span style="color:#ae81ff">10</span> --
+output 0000c7494cc791f1c26547fd9deb5d6fa73bc30895bea883f4a6d411e3c5ad004c80abb8dc3ddc0dd5311b74f7ade87eb219a80c9157bb8969b140e7cd2ea9c4330647e4afcdeb5d1c90596c009a31e4d81a11245a1957b21ae46f9e2b4ddcd7e4081001 --proof <span style="color:#ae81ff">04000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</span>
+Verified: true
+</code></pre></div><h1 id="references">References</h1>
+<ol>
+<li>
+<p>Paper: <a href="https://eprint.iacr.org/2018/601.pdf">https://eprint.iacr.org/2018/601.pdf</a></p>
+</li>
+<li>
+<p>Walkthrough: <a href="https://medium.com/iovlabs-innovation-stories/verifiable-delay-functions-8eb6390c5f4">https://medium.com/iovlabs-innovation-stories/verifiable-delay-functions-8eb6390c5f4</a></p>
+</li>
+<li>
+<p>Ethereum discussion: <a href="https://ethresear.ch/t/verifiable-delay-functions-and-attacks/2365/8">https://ethresear.ch/t/verifiable-delay-functions-and-attacks/2365/8</a></p>
+</li>
+<li>
+<p>Paper: <a href="https://www.mdpi.com/1424-8220/22/19/7524">https://www.mdpi.com/1424-8220/22/19/7524</a></p>
+</li>
+<li>
+<p>Survey of the first two VDF constructions: <a href="https://eprint.iacr.org/2018/712.pdf">https://eprint.iacr.org/2018/712.pdf</a></p>
+</li>
+</ol>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2024 </p>
+</footer>
+    </main>
+  </body>
+</html>
