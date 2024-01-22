@@ -22,7 +22,7 @@ A VDF is defined as a tuple of the following 3 functions:
 
 3. `verify(vk, x, y, pi) => true/false`: Using the verifying key, input, output, and the proof, verifies that the output is indeed computed from the input. 
 
-![Algorithms for VDF](../images/2024-01-17-vdf.png)
+![Algorithms for VDF](/images/2024-01-17-vdf.png)
 
 What are the required properties for the VDF algorithms?
 
