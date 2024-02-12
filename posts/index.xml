@@ -11,6 +11,20 @@
     <copyright>2021 Janne Kemppainen All rights reserved</copyright>
     <lastBuildDate>Wed, 17 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>Paper Published</title>
+      <link>https://joywang.co/2024/01/17/2024-02-12-papers-published/</link>
+      <pubDate>Wed, 17 Jan 2024 00:00:00 +0000</pubDate>
+      <author>me@example.com (joy)</author>
+      <guid>https://joywang.co/2024/01/17/2024-02-12-papers-published/</guid>
+      <description>Paper Published A laundry list of papers, publications and articles posted elsewhere that I have participated and contributed.
+  Subset-optimized BLS Multi-signature with Key Aggregation: https://eprint.iacr.org/2023/498.pdf
+  zkLogin: Privacy-Preserving Blockchain Authentication with Existing Credentials https://arxiv.org/abs/2401.11735
+  Cryptography in Sui: https://mystenlabs.com/blog/cryptography-in-sui-agility
+  Zero knowledge range proofs: https://mystenlabs.com/blog/zero-knowledge-range-proofs
+  </description>
+    </item>
+    
+    <item>
       <title>Verifiable Delay Function Explained with Applications</title>
       <link>https://joywang.co/2024/01/17/2024-01-17-vdf-explained/</link>
       <pubDate>Wed, 17 Jan 2024 00:00:00 +0000</pubDate>
