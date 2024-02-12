@@ -9,20 +9,20 @@
   
   
     {
-      "id": "https://joywang.co/2024/01/17/2024-01-17-vdf-explained/",
-      "title": "Verifiable Delay Function Explained with Applications",
-      "content_text": "Verifiable Delay Function Explained with Applications Verifiable Delay Function is a useful cryptographic primitive that has a wide range of applications such as randomness beacon and proof of replication. Similar to zero knowledge proving systems, the output of a verifiable delay function is slow to compute and requires sequential computation, but can be efficiently verified. Unlike Proof of Work that parallel work can be performed across different machines, VDF is required to perform sequentially and cannot be parallelized.",
-      "url": "https://joywang.co/2024/01/17/2024-01-17-vdf-explained/",
-      "date_published": "2024-01-17 00:00:00 +0000 UTC",
-      "tags": ["crypto"]
+      "id": "https://joywang.co/2024/02/12/2024-02-12-papers-published/",
+      "title": "Paper Published",
+      "content_text": "Paper Published A laundry list of papers, publications and articles posted elsewhere that I have participated and contributed.\n  Subset-optimized BLS Multi-signature with Key Aggregation: https://eprint.iacr.org/2023/498.pdf\n  zkLogin: Privacy-Preserving Blockchain Authentication with Existing Credentials https://arxiv.org/abs/2401.11735\n  Cryptography in Sui: https://mystenlabs.com/blog/cryptography-in-sui-agility\n  Zero knowledge range proofs: https://mystenlabs.com/blog/zero-knowledge-range-proofs\n  ",
+      "url": "https://joywang.co/2024/02/12/2024-02-12-papers-published/",
+      "date_published": "2024-02-12 00:00:00 +0000 UTC",
+      "tags": ["intro"]
     }
   
   , 
     {
-      "id": "https://joywang.co/2024/01/17/2024-02-12-papers-published/",
-      "title": "Paper Published",
-      "content_text": "Paper Published A laundry list of papers, publications and articles posted elsewhere that I have participated and contributed.\n  Subset-optimized BLS Multi-signature with Key Aggregation: https://eprint.iacr.org/2023/498.pdf\n  zkLogin: Privacy-Preserving Blockchain Authentication with Existing Credentials https://arxiv.org/abs/2401.11735\n  Cryptography in Sui: https://mystenlabs.com/blog/cryptography-in-sui-agility\n  Zero knowledge range proofs: https://mystenlabs.com/blog/zero-knowledge-range-proofs\n  ",
-      "url": "https://joywang.co/2024/01/17/2024-02-12-papers-published/",
+      "id": "https://joywang.co/2024/01/17/2024-01-17-vdf-explained/",
+      "title": "Verifiable Delay Function Explained with Applications",
+      "content_text": "Verifiable Delay Function Explained with Applications Verifiable Delay Function is a useful cryptographic primitive that has a wide range of applications such as randomness beacon and proof of replication. Similar to zero knowledge proving systems, the output of a verifiable delay function is slow to compute and requires sequential computation, but can be efficiently verified. Unlike Proof of Work that parallel work can be performed across different machines, VDF is required to perform sequentially and cannot be parallelized.",
+      "url": "https://joywang.co/2024/01/17/2024-01-17-vdf-explained/",
       "date_published": "2024-01-17 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }

@@ -9,7 +9,16 @@
     <managingEditor>me@example.com (joy)</managingEditor>
     <webMaster>me@example.com (joy)</webMaster>
     <copyright>2021 Janne Kemppainen All rights reserved</copyright>
-    <lastBuildDate>Wed, 17 Jan 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 12 Feb 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>intro</title>
+      <link>https://joywang.co/tags/intro/</link>
+      <pubDate>Mon, 12 Feb 2024 00:00:00 +0000</pubDate>
+      <author>me@example.com (joy)</author>
+      <guid>https://joywang.co/tags/intro/</guid>
+      <description></description>
+    </item>
+    
     <item>
       <title>crypto</title>
       <link>https://joywang.co/tags/crypto/</link>
