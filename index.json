@@ -9,12 +9,22 @@
   
   
     {
-      "id": "https://joywang.co/2024/02/12/2024-02-12-papers-published/",
-      "title": "Paper Published",
-      "content_text": "Paper Published A laundry list of papers, publications and articles posted elsewhere that I have participated and contributed.\n  Subset-optimized BLS Multi-signature with Key Aggregation: https://eprint.iacr.org/2023/498.pdf\n  zkLogin: Privacy-Preserving Blockchain Authentication with Existing Credentials https://arxiv.org/abs/2401.11735\n  Cryptography in Sui: https://mystenlabs.com/blog/cryptography-in-sui-agility\n  Zero knowledge range proofs: https://mystenlabs.com/blog/zero-knowledge-range-proofs\n  ",
-      "url": "https://joywang.co/2024/02/12/2024-02-12-papers-published/",
-      "date_published": "2024-02-12 00:00:00 +0000 UTC",
-      "tags": ["intro"]
+      "id": "https://joywang.co/2024/06/16/2024-06-16-this-week-in-crypto-research/",
+      "title": "This Week in Cryptography Research June 16",
+      "content_text": "This is the augural issue for This Week in Cryptography Research. I hope to summarize 2 papers I read this week and highlight the main contributions. I focus on papers that are most interesting to me, and has a strong preference to practical applications and constructions over theories and attacks.\nAtomic and Fair Data Exchange via Blockchain (Link) I came across this paper while reading about various data storage solutions related to the blockchain.",
+      "url": "https://joywang.co/2024/06/16/2024-06-16-this-week-in-crypto-research/",
+      "date_published": "2024-06-16 00:00:00 +0000 UTC",
+      "tags": ["weekly"]
+    }
+  
+  , 
+    {
+      "id": "https://joywang.co/2024/03/02/2024-02-12-papers-published/",
+      "title": "Identity Based Encryption",
+      "content_text": "Identity Based Encryption public key encryption where the public key associates with an unique identity about the user.\nsetup extract: a user requests a private key, encrypt decrypt",
+      "url": "https://joywang.co/2024/03/02/2024-02-12-papers-published/",
+      "date_published": "2024-03-02 00:00:00 +0000 UTC",
+      "tags": ["crypto"]
     }
   
   , 

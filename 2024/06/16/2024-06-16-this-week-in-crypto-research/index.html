@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This Week in Cryptography Research June 16 | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="https://joywang.coassets/css/post.css" />
+  <script defer src="https://joywang.coassets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="https://joywang.coassets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="https://joywang.co">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">This Week in Cryptography Research June 16</h2>
+          <small class="date">Sun Jun 16, 2024</small>
+          <div class="tags">
+            
+            <a href="https://joywang.cotags/weekly" class="tag">weekly</a>
+            
+          </div>
+        </div>
+        <div class="content"><p>This is the augural issue for This Week in Cryptography Research. I hope to summarize 2 papers I read this week and highlight the main contributions. I focus on papers that are most interesting to me, and has a strong preference to practical applications and constructions over theories and attacks.</p>
+<h1 id="atomic-and-fair-data-exchange-via-blockchain-linkhttpseprintiacrorg2024418">Atomic and Fair Data Exchange via Blockchain (<a href="https://eprint.iacr.org/2024/418">Link</a>)</h1>
+<p>I came across this paper while reading about various data storage solutions related to the blockchain. The paper highlighted a flaw with the current proof of storage design: the data is stored off-chain (since storing data on a blockchain is prohibitively expensive) with a succinct commitment on-chain attesting the data is stored. The user only pays when storing, but does not pay when querying or reading the data.</p>
+<p>The construction starts with a simple atomic exchange protocol: a user wishes to obtain a data from server. He first locks a small payment along with the data commitment. The data is posted by the server and the payment can be claimed if only if the data matches the commitment. Where is this data being posted? It will still be expensive to posted it on-chain, so the protocol designs to have the data exchange off-chain but only to have the verifying key committed on-chain.</p>
+<p>The protocol is described as follows: The server first encrypts the data, then outputs a verification key, a ciphertext and a zero-knowledge proof of correct encryption. The client can now lock the payment on-chain if and only if the proof verifies against the ciphertext and commitment. Then the server can claim the payment if and only if it provides a decryption key that matches the verification key. Then the client reads the decryption key from on-chain and decrypts the data.</p>
+<p>A few more details: How does commitment work? KZG polynomial commitment scheme is used for its constant size commitments and batchable opening proof. How can we prove that the encryption is correct? There are two instantiations using exponential ElGamal encryption and public-key version of Paillier encryption - in particular, the equality proof for ElGamal encryption is shown <a href="https://crypto.stackexchange.com/questions/30010/is-there-a-way-to-prove-equality-of-plaintext-that-was-encrypted-using-different">here</a>.</p>
+<p>The protocol also extends to a multi-client setting where multiple clients can download the same data with some time saving. This is useful when multiple light clients request the same block data. How can we compress the algorithm? The proof generation for different clients can be saved with some preprocessing.</p>
+<h1 id="nebula-a-privacy-first-platform-for-data-backhaul-linkhttpseprintiacrorg2024409pdf">Nebula: A Privacy-First Platform for Data Backhaul (<a href="https://eprint.iacr.org/2024/409.pdf">Link</a>)</h1>
+<p>This paper focuses on a very practical use case of building decentralized data collection network. One of the biggest challenge in this space is how to retrieve and utilize data from large scale networks of low power and dispersed sensors with incentives while preserving privacy of the sensor. An example is how AirTags can crowdsource local network for data on the lost items, while rewarding the sensors to provide more data, but without leaking sensitive data from the participants of the network. Nebula devices a decentralized network for such data platform, where the sensors contributing the data are rewarded through micropayment, while improving location privacy.</p>
+<p>The construction involves the platform providers (the platform that registers application servers, sensors and coordinates payments), the application server (the server that receives data), and data mules (devices such as phones that has intermittent Internet access, that detects sensors, read and upload data from sensors to application server).</p>
+<p>The protocol is instantiated with unlinkable tokens - What is it? A server generates PRF secret key <code>k</code> and reveals its commitment as <code>Y</code>. A client picks a random input to the server, that the server evaluates it to <code>t = prk_k(x)</code> and outputs an equivalence proof. Later the result <code>t</code> can be evaluated as a valid output against the public commitment <code>Y</code> corresponds to <code>k</code>.</p>
+<p>The architecture is designed as follows: 1. The application server pre-purchase unlinkable tokens 2. The mules encounters sensors, verify identity by authenticating the sensor certificates to the CA, then receives data from sensor 3. Mules authenticates with the application server, delivers payload and redeem tokens. Since the tokens are not linked to who purchased them, the application cannot identify the sensors that provide the data.</p>
+<p>The paper goes into detailed evaluation around device energy consumptions and economic incentives that shows that the system only has a small overhead (5% energy and 3MB storage) for the benefit of not revealing its location to any server. The use of cryptography in this system is light, but the contribution is still very solid from its comprehensive system design and practicality.</p>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2024 </p>
+</footer>
+    </main>
+  </body>
+</html>
