@@ -1,17 +1,14 @@
 ---
-title: Paper Published 
-date: 2024-02-12
-tags: ["intro"]
+title: Identity Based Encryption
+date: 2024-03-02
+tags: ["crypto"]
 ---
 
-## Paper Published 
+## Identity Based Encryption
 
-A laundry list of papers, publications and articles posted elsewhere that I have participated and contributed. 
+public key encryption where the public key associates with an unique identity about the user.  
 
-1. Subset-optimized BLS Multi-signature with Key Aggregation: https://eprint.iacr.org/2023/498.pdf
-
-2. zkLogin: Privacy-Preserving Blockchain Authentication with Existing Credentials https://arxiv.org/abs/2401.11735
-
-3. Cryptography in Sui: https://mystenlabs.com/blog/cryptography-in-sui-agility
-
-4. Zero knowledge range proofs: https://mystenlabs.com/blog/zero-knowledge-range-proofs
+setup
+extract: a user requests a private key, 
+encrypt
+decrypt
