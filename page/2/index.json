@@ -1,0 +1,21 @@
+{
+  "version": "https://jsonfeed.org/version/1",
+  "title": "Joy's Personal Website",
+  "home_page_url": "https://joywang.co",
+  "feed_url": "https://joywang.co/",
+
+
+  "items": [
+  
+  
+    {
+      "id": "https://joywang.co/2022/12/05/2022-12-05-committments/",
+      "title": "All Things Commitments",
+      "content_text": "Examining vector and polynomial commitments. \u0026ldquo;A promise is made, a promise is kept.\u0026rdquo; How do we make commitments?\nMaking commitments is a two-step process. First, we make a promise: a committer publishes a value and it binds to the message without revealing it.\nHow do we know a promise is kept? Second, he can choose to reveal the message to a verifier, who can check if the message is indeed what he previously published.",
+      "url": "https://joywang.co/2022/12/05/2022-12-05-committments/",
+      "date_published": "2022-12-05 00:00:00 +0000 UTC",
+      "tags": ["crypto"]
+    }
+  
+  ]
+}

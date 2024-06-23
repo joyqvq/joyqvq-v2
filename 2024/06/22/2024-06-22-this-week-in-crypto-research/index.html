@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This Week in Cryptography Research June 22 | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="https://joywang.coassets/css/post.css" />
+  <script defer src="https://joywang.coassets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="https://joywang.coassets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="https://joywang.co">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">This Week in Cryptography Research June 22</h2>
+          <small class="date">Sat Jun 22, 2024</small>
+          <div class="tags">
+            
+            <a href="https://joywang.cotags/weekly" class="tag">weekly</a>
+            
+          </div>
+        </div>
+        <div class="content"><p>Welcome to the second issue of the cryptography research weekly! This week I read about randomness implementation considerations and encryption techniques.</p>
+<h1 id="vraas-verifiable-randomness-as-a-service-on-blockchainslinkhttpseprintiacrorg2024957pdf">VRaaS: Verifiable Randomness as a Service on Blockchains(<a href="https://eprint.iacr.org/2024/957.pdf">Link</a>)</h1>
+<p>This paper provides a formalized framework for verifiable randomness that captures core features such as unbiasability, unpredictability, and public verifiability but also the onchain components design. The randomness requester first sends a request to smart contract and records a unique ID onchain. The VRF committee reads the value and computes VRF output that generates a publicly verifiable proof of correctness of the generated randomness. The smart contract verifies the proof and then returns the output to the requester via a callback function that fulfills the request. The smart contract also records the payment and ensures the atomicity of the service offering against the payable fee.</p>
+<p>The key observation of the paper is that it is necessary to post two on-chain transactions where the requested randomness transaction is posted with a sequence number. The uniqueness and unbiasability can only be guaranteed by the unique sequence number. Removing this transaction (and replacing it with a direct message to the requester) enables a malicious requester to deny the output if it is unfavorable and keep sampling until a favorable one is obtained.</p>
+<p>It discusses how Pyth VRF does not fulfill this flow and can be exploited. The VRF server pre-computes <code>x_1, x_2..., x_n</code> and computes onchain. A request samples <code>x_u</code> and send <code>H(x_u)</code> to smart contract. The contract assigns sequence number <code>i</code> and stores <code>i -&gt; H(x_u)</code> onchain, returns to the requester, and increment <code>i</code>. Now the requester calls the VRF service to compute <code>x_i</code>. Since now the requester can compute offchain its randomness as <code>r =  H(x_i, x_u)</code> and he can choose abort to publish <code>r</code> because <code>x_u</code> is private to the requester.</p>
+<h1 id="fabesa-fast-and-anonymous-attribute-based-encryption-under-standard-assumptions-linkhttpseprintiacrorg2024986pdf">FABESA: Fast (and Anonymous) Attribute-Based Encryption under Standard Assumptions (<a href="https://eprint.iacr.org/2024/986.pdf">Link</a>)</h1>
+<p>The idea of encryption based on access control has been an interesting research topic for me to read. This is a very practical construction that can be used for data sharing within organizations with defined access control and can even be applied in public blockchains given its privacy guarantees over ciphertext and policy structure. In addition, this paper includes a very good section on background and definitions and also provides a very comprehensive list of implementations and benchmarks.</p>
+<p>FABESA proposes a key-policy and ciphertext-policy ABE schemes that (1) support both AND and OR gates for access policies, (2) have no restriction on the size and type of policies or attributes, (3) achieve adaptive security under the standard DLIN assumption, and (4) only need 4 pairings for decryption.</p>
+<p>What is key-policy attribute based encryption? It means the ciphertext contains an attribute set and it can be only decrypted with a secret key with the correct access policy. On the other hand, ciphertext policy attribute based encryption means the access policies associated with the ciphertext and attribute sets attached to the secret key.</p>
+<p>In addition to expressiveness, security, and efficiency, the main contribution in this paper is ciphertext anonymity. The ciphertext does not reveal the message itself nor the attribute values.</p>
+<p>We won&rsquo;t dive into the algorithms, but the intuition here is that a payload <code>pl_x</code> associated with the secret key is generated during key generation, and another payload <code>pl_y</code> associated with the ciphertext is generated during encryption. Note that the policy name is revealed but the value is hidden (i.e. partially hidden structure).</p>
+<pre><code>setup -&gt; pk, msk
+keygen(pk, msk, i) -&gt; sk_x, pl_x
+enc(pk, y, msg) -&gt; ct_y, pl_y
+dec(pl_x, pl_y, ct_y, sk_x) -&gt; msg
+</code></pre><p>How to achieve anonymity? Inner product encryption is designed to encode policy and attributes in equal sized vectors <code>x</code> and <code>y</code> and embedded into the key and ciphertext. The decryption only succeeds when $x \cdot y = 1$.</p>
+<p>For example, for a policy <code>A = (a_1 OR b_1) AND c_1</code> can be transformed to a polynomial $P(x_1, x_2, x_3) = r_1 \cdot (x_1 - a_1) \cdot (x_2 - b_1) + r_2 \cdot (x_3 - c_1)$. To unpact the polynomial, we have coefficient $ x = (a_1b_1r_1 - c_1r_2, -b_1r_1, -a_1r_1, r_2, 0, 0, 0, r_1, 0, 0)$ for $(1, x_1, x_2, x_3, x_1^2, x_2^2, x_3^2, x_1x_2, x_1x_3, x_2x_3)$. For an attribute set $(a_1, b_4, c_1)$ as $y = (1, a_1, b_4, c_1, 0, 0, 0, a_1b_4, 0, 0)$. There we have $x \cdot y = 0$.</p>
+<h1 id="swiper-a-new-paradigm-for-efficient-weighted-distributed-protocols-linkhttpsdlacmorgdoipdf10114536621583662799">Swiper: a new paradigm for efficient weighted distributed protocols (<a href="https://dl.acm.org/doi/pdf/10.1145/3662158.3662799">Link</a>)</h1>
+<p>This paper discussed a technique on how to transform a nominal model to a weighted model using weight reduction in a simple way. This is especially useful for weighted threshold systems such as weighted voting to be baked into the verification, instead of tracking the weight outside the signature verification itself.</p>
+<h1 id="sok-programmable-privacy-in-distributed-systems-linkhttpseprintiacrorg2024982pdf">SoK: Programmable Privacy in Distributed Systems (<a href="https://eprint.iacr.org/2024/982.pdf">Link</a>)</h1>
+<p>Long paper warning! A lot of good definitions, and the most useful paradigm I find is the computation framework that the data will go through in a privacy focused application.</p>
+<ul>
+<li>Independent computation: This is where the computation to the private input data is committed and attested via a proof.</li>
+<li>Mediated computation: The computation is jointly computed by the users and some operators. The private inputs can be encoded with techniques such as MPC, FHE etc.</li>
+<li>Global computation: When the application level computation has to be executed by all nodes on the network and the proofs are verified.</li>
+</ul>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2024 </p>
+</footer>
+    </main>
+  </body>
+</html>
