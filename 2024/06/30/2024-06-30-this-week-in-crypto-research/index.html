@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This Week in Cryptography Research June 30 | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="https://joywang.coassets/css/post.css" />
+  <script defer src="https://joywang.coassets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="https://joywang.coassets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="https://joywang.co">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">This Week in Cryptography Research June 30</h2>
+          <small class="date">Sun Jun 30, 2024</small>
+          <div class="tags">
+            
+            <a href="https://joywang.cotags/weekly" class="tag">weekly</a>
+            
+          </div>
+        </div>
+        <div class="content"><p>Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction</p>
+<h1 id="adaptor-signatures-new-security-definition-and-a-generic-construction-for-np-relationslinkhttpseprintiacrorg20241051pdf">Adaptor Signatures: New Security Definition and A Generic Construction for NP Relations(<a href="https://eprint.iacr.org/2024/1051.pdf">Link</a>)</h1>
+<p>I have read about adaptor signatures in <a href="https://bitcoinops.org/en/topics/adaptor-signatures/">Bitcoin land</a> a while ago, this paper offered a generic construction that is not only particular to ECDSA or Schnorr.</p>
+<p>An Adaptor signature scheme is defined based on a relation R where there is a signer and a receiver. The signer can pre-sign a message (e.g., a transaction) with respect to some instance <code>Y</code> to obtain a pre-signature. The receiver can then be adapted to a full signature with the knowledge of the witness <code>y</code> for <code>Y</code> that satisfies the relation <code>(Y, y) ∈ R</code>. This is useful for applications like atomic swaps, where the sender can produce a pre-signature, and only if the receiver can fulfill something off chain to obtain the witness, can he complete the full signature, thus executing a transaction that claims a payment.</p>
+<p>An issue with the witness extractability arises, the adapted signature σ is uploaded to the blockchain, making the witness accessible to everyone on the network. This paper formalizes a technique that makes the witness extractable only with both the pre-signature and the full signature, but not just with only one of them. In addition, the paper generalizes the adaptor signature scheme to any NP relations by proving the completeness of the zero-knowledge protocol for the Hamiltonian cycle problem.</p>
+<p>We first take a look at the definition for Trapdoor Commitments with Specific Adaptable Message:</p>
+<pre><code>keygen -&gt; (ck, td) commitment key and trapdoor
+commit(ck, m) -&gt; (c, d) a commitment and an opening
+verify(c, d, ck, m) -&gt; 0/1
+td_open(td, c, d, ck, m, m_0) -&gt; d with an adaptable message m_0, an adapted opening d can be obtained. 
+</code></pre><p>Observe that if the commitment <code>c</code> of the specific adaptable message <code>m_0</code> serves is in the pre-signed message, then with the knowledge of the trapdoor, one can open the commitment <code>c</code> to the real message to be signed and hence form a valid adapted signature. By making the commitment key the Hamiltonian problem instance and the trapdoor is the Hamiltonian cycle witness, the paper proves the existence of one-way functions implies the existence of witness hiding adaptor signatures for any NP relation.</p>
+<h1 id="enhancing-local-verification-aggregate-and-multi-signature-schemes-linkhttpseprintiacrorg20241055pdf">Enhancing Local Verification: Aggregate and Multi-Signature Schemes (<a href="https://eprint.iacr.org/2024/1055.pdf">Link</a>)</h1>
+<p>This paper discussed a technique to improve efficiency to aggregated signature verification. Traditionally, for a set of signatures produced over different messages that aggregates to one signature, the verification algorithm needs to take the whole list of messages to verify against the aggregated signature. Locally verifiable signatures allow efficient verification by enabling a verifier to check the presence of a particular message in an aggregate signature without accessing the entire set of messages.</p>
+<pre><code>setup -&gt; (sk_i, vk_i) for each signer i
+sign(m, sk_i, agg_vk) -&gt; sig_i
+aggregate(sig_i, agg_vk, m) -&gt; agg_sig
+aggregate_verify(agg_sig, agg_vk, m) -&gt; 0/1
+local_open(agg_vk, {j_i}_i=1..k, m) -&gt; aux
+local_aggregate_verify(aux, {vk_i}_i=1..k, m, agg_vk, agg_sig) -&gt; 0/1
+</code></pre><p>How is <code>aux</code> calculated? $aux = e(H_0(m), \prod_{i=1, i \neq j_1..j_k}^{n} vk_{i}^{a_{i}})$ where $H_0$ is the hash function in $G_1$. This way, the local aggregate verify can check the following:</p>
+<p>$e(agg_sig, g_2) == aux \cdot e(H_0(m), \prod_{i=1}^k vk_{j_i}^{a_{j_i}})$</p>
+<p>This is more efficient than the aggregate verify that checks:
+$e(agg_sig, g_2) == e(H_0(m), \prod_{i=1}^{n} vk_i^{a_i})$</p>
+<p>With the local aggregate verify, it can efficiently check
+signers' signatures are included in the multi-signature. As the number of signatures to be verified increases, the verification phase operates more efficiently.</p>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 1947 - 2024 </p>
+</footer>
+    </main>
+  </body>
+</html>
