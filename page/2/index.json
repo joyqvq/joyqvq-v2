@@ -9,16 +9,6 @@
   
   
     {
-      "id": "https://joywang.co/2022/12/29/2022-12-29-key-derivation/",
-      "title": "Annotations and Discussions on Key Derivation",
-      "content_text": "A closer look on key derivations with relation to curve operations. This post is a more general discussion on key derivation applying to broader cryptocurrency usage. You can find my writing on the Sui Network specifically here.\nBIP-32 and SLIP-0010 are both excellent standards on how key management works, and they both have extensive implementations across many languages. However, I struggle to find a good reading on why some constructions are needed and how they relate to the RFCs on different curves.",
-      "url": "https://joywang.co/2022/12/29/2022-12-29-key-derivation/",
-      "date_published": "2022-12-29 00:00:00 +0000 UTC",
-      "tags": ["crypto"]
-    }
-  
-  , 
-    {
       "id": "https://joywang.co/2022/12/05/2022-12-05-committments/",
       "title": "All Things Commitments",
       "content_text": "Examining vector and polynomial commitments. \u0026ldquo;A promise is made, a promise is kept.\u0026rdquo; How do we make commitments?\nMaking commitments is a two-step process. First, we make a promise: a committer publishes a value and it binds to the message without revealing it.\nHow do we know a promise is kept? Second, he can choose to reveal the message to a verifier, who can check if the message is indeed what he previously published.",

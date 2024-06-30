@@ -39,16 +39,6 @@
   
   , 
     {
-      "id": "https://joywang.co/2024/03/02/2024-02-12-papers-published/",
-      "title": "Identity Based Encryption",
-      "content_text": "Identity Based Encryption public key encryption where the public key associates with an unique identity about the user.\nsetup extract: a user requests a private key, encrypt decrypt",
-      "url": "https://joywang.co/2024/03/02/2024-02-12-papers-published/",
-      "date_published": "2024-03-02 00:00:00 +0000 UTC",
-      "tags": ["crypto"]
-    }
-  
-  , 
-    {
       "id": "https://joywang.co/2024/01/17/2024-01-17-vdf-explained/",
       "title": "Verifiable Delay Function Explained with Applications",
       "content_text": "Verifiable Delay Function Explained with Applications Verifiable Delay Function is a useful cryptographic primitive that has a wide range of applications such as randomness beacon and proof of replication. Similar to zero knowledge proving systems, the output of a verifiable delay function is slow to compute and requires sequential computation, but can be efficiently verified. Unlike Proof of Work that parallel work can be performed across different machines, VDF is required to perform sequentially and cannot be parallelized.",
@@ -104,6 +94,16 @@
       "content_text": "Creating threshold signature and multisigs with Schnorr, how are they different and when to use which? Threshold signature and multisig are two important cryptographic constructions that are available for the majority of cryptocurrency protocols. In a single signature model, it assumes that a single signer can produce a signature and submit to the protocol for verification. This makes the single private key the single point of failure, since the compromise of this key means 100% loss of funds.",
       "url": "https://joywang.co/2023/01/19/2023-01-19-thresholdsig-multisig/",
       "date_published": "2023-01-19 00:00:00 +0000 UTC",
+      "tags": ["crypto"]
+    }
+  
+  , 
+    {
+      "id": "https://joywang.co/2022/12/29/2022-12-29-key-derivation/",
+      "title": "Annotations and Discussions on Key Derivation",
+      "content_text": "A closer look on key derivations with relation to curve operations. This post is a more general discussion on key derivation applying to broader cryptocurrency usage. You can find my writing on the Sui Network specifically here.\nBIP-32 and SLIP-0010 are both excellent standards on how key management works, and they both have extensive implementations across many languages. However, I struggle to find a good reading on why some constructions are needed and how they relate to the RFCs on different curves.",
+      "url": "https://joywang.co/2022/12/29/2022-12-29-key-derivation/",
+      "date_published": "2022-12-29 00:00:00 +0000 UTC",
       "tags": ["crypto"]
     }
   
