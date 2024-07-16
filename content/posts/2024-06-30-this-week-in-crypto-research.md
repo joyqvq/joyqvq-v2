@@ -4,7 +4,7 @@ date: 2024-06-30
 tags: ["weekly"]
 ---
 
-Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction 
+Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction and a technique for more efficient verification of multi-signatures. 
 
 # Adaptor Signatures: New Security Definition and A Generic Construction for NP Relations([Link](https://eprint.iacr.org/2024/1051.pdf))
 
