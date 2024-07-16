@@ -9,14 +9,24 @@
     <managingEditor>me@example.com (joy)</managingEditor>
     <webMaster>me@example.com (joy)</webMaster>
     <copyright>2021 Janne Kemppainen All rights reserved</copyright>
-    <lastBuildDate>Sun, 30 Jun 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/posts/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 15 Jul 2024 00:00:00 +0000</lastBuildDate><atom:link href="https://joywang.co/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>This Week in Cryptography Research July 15</title>
+      <link>https://joywang.co/2024/07/15/2024-07-07-this-week-in-crypto-research/</link>
+      <pubDate>Mon, 15 Jul 2024 00:00:00 +0000</pubDate>
+      <author>me@example.com (joy)</author>
+      <guid>https://joywang.co/2024/07/15/2024-07-07-this-week-in-crypto-research/</guid>
+      <description>Welcome to the fourth issue of the cryptography research (bi-)weekly! This week I took a look at an interesting construction on top of OpenID to ensure privacy of relying parties to identity providers. Another topic focuses on how to do remote attestation of devices more efficiently. Both leverage some commitment schemes as part of the constructions.
+OPPID: Single Sign-On with Oblivious Pairwise Pseudonyms(Link) Single Sign-On (SSO) is a protocol that allows users to conveniently authenticate to many Relying Parties (RPs) through a central Identity Provider (IdP).</description>
+    </item>
+    
     <item>
       <title>This Week in Cryptography Research June 30</title>
       <link>https://joywang.co/2024/06/30/2024-06-30-this-week-in-crypto-research/</link>
       <pubDate>Sun, 30 Jun 2024 00:00:00 +0000</pubDate>
       <author>me@example.com (joy)</author>
       <guid>https://joywang.co/2024/06/30/2024-06-30-this-week-in-crypto-research/</guid>
-      <description>Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction
+      <description>Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction and a technique for more efficient verification of multi-signatures.
 Adaptor Signatures: New Security Definition and A Generic Construction for NP Relations(Link) I have read about adaptor signatures in Bitcoin land a while ago, this paper offered a generic construction that is not only particular to ECDSA or Schnorr.
 An Adaptor signature scheme is defined based on a relation R where there is a signer and a receiver.</description>
     </item>

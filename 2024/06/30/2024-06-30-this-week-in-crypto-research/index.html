@@ -36,7 +36,7 @@
             
           </div>
         </div>
-        <div class="content"><p>Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction</p>
+        <div class="content"><p>Welcome to the third issue of the cryptography research weekly! This week I read about adaptor signature contruction and a technique for more efficient verification of multi-signatures.</p>
 <h1 id="adaptor-signatures-new-security-definition-and-a-generic-construction-for-np-relationslinkhttpseprintiacrorg20241051pdf">Adaptor Signatures: New Security Definition and A Generic Construction for NP Relations(<a href="https://eprint.iacr.org/2024/1051.pdf">Link</a>)</h1>
 <p>I have read about adaptor signatures in <a href="https://bitcoinops.org/en/topics/adaptor-signatures/">Bitcoin land</a> a while ago, this paper offered a generic construction that is not only particular to ECDSA or Schnorr.</p>
 <p>An Adaptor signature scheme is defined based on a relation R where there is a signer and a receiver. The signer can pre-sign a message (e.g., a transaction) with respect to some instance <code>Y</code> to obtain a pre-signature. The receiver can then be adapted to a full signature with the knowledge of the witness <code>y</code> for <code>Y</code> that satisfies the relation <code>(Y, y) ∈ R</code>. This is useful for applications like atomic swaps, where the sender can produce a pre-signature, and only if the receiver can fulfill something off chain to obtain the witness, can he complete the full signature, thus executing a transaction that claims a payment.</p>

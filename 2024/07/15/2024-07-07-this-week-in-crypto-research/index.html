@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>This Week in Cryptography Research July 15 | Joy&#39;s Personal Website</title>
+  <link rel="stylesheet" href="https://joywang.coassets/css/post.css" />
+  <script defer src="https://joywang.coassets/js/lbox.js"></script>
+  
+  <link rel="stylesheet" href="https://joywang.coassets/css/common.css" />
+  <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script> 
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+        inlineMath: [['$','$']]
+      },
+		  TeX: { equationNumbers: { autoNumber: "all" } },
+    });
+  </script>
+</head>
+  <body>
+    <main>
+      <header>
+  <a class="site-title" href="https://joywang.co">Joy&#39;s Personal Website</a>
+</header>
+
+      <section class="article">
+        <div class="article-header">
+          <h2 class="article-title">This Week in Cryptography Research July 15</h2>
+          <small class="date">Mon Jul 15, 2024</small>
+          <div class="tags">
+            
+            <a href="https://joywang.cotags/weekly" class="tag">weekly</a>
+            
+          </div>
+        </div>
+        <div class="content"><p>Welcome to the fourth issue of the cryptography research (bi-)weekly! This week I took a look at an interesting construction on top of OpenID to ensure privacy of relying parties to identity providers. Another topic focuses on how to do remote attestation of devices more efficiently. Both leverage some commitment schemes as part of the constructions.</p>
+<h1 id="oppid-single-sign-on-with-oblivious-pairwise-pseudonymslinkhttpseprintiacrorg20241124">OPPID: Single Sign-On with Oblivious Pairwise Pseudonyms(<a href="https://eprint.iacr.org/2024/1124">Link</a>)</h1>
+<p>Single Sign-On (SSO) is a protocol that allows users to conveniently authenticate to many Relying Parties (RPs) through a central Identity Provider (IdP). For example, an application can create client IDs within Google, and Google authenticates users with &ldquo;Allow xx Application to sign in with Google&rdquo; and returns a token scoped to the RP. However, the RP itself is transparent to the IdP on every authentication request, since the IdP learns the RP that the user wants to access to generate the token. So the question comes: How can the IdP ensure that issuing tokens can still bind to the RP ID, but without learning the RP ID itself? At the same time, the token must be verifiable to the registered RP.</p>
+<p>The paper proposes to have the IdP to maintain an updateable membership state. Whenever an RP registers with IdP, the RP receives a <code>cred</code> value (a signature committed on <code>rid</code>), and the membership state is updated. When initiating an authentication request, the user first obtains <code>(crid, orid)</code> (a commitment value and an opening). RP then generates <code>auth</code> based on <code>orid, crid, cred</code> along with a random session ID <code>sid</code>. What is <code>auth</code>? It is a proof that <code>cred</code> indeed commits to <code>rid</code> and <code>crid</code> is indeed a commitment over <code>rid</code>.</p>
+<p>Then IdP verifies <code>auth</code> and signs with its secret key <code>isk</code> over <code>crid</code> to produce a token $\pi$. Then this token can be finalized $\pi_final$ by opening the commitment, and a pseudonym ID can be derived. Finally, the $\pi_final$ can be verified against the IdP public key <code>ipk</code>.</p>
+<p>With some overhead to the original OpenID spec, this algorithm achieves the unobservability of the token. The IdP can blindly derive the user&rsquo;s pairwise pseudonym (since it only has <code>auth</code> not <code>rid</code>) for the targeted RP without learning the RP&rsquo;s identity and without requiring key material handled by the user.</p>
+<h1 id="from-interaction-to-independence-zksnarks-for-transparent-and-non-interactive-remote-attestation">From Interaction to Independence: zkSNARKs for Transparent and Non-Interactive Remote Attestation</h1>
+<p>(<a href="https://eprint.iacr.org/2024/1068">Link</a>)</p>
+<p>Remote attestation (RA) evaluate the integrity of software on remote devices, such as IoT devices. Previously, most of the RA techniques usually involved interactive communications, and/or pre-shared knowledge of devices and keys. The verifier sends a random challenge to
+the device and the device&rsquo;s response is generated based on some secret value of the device. To address the lack of transparency and poor scalability of such methods, this paper proposes a protocol that is non-interactive, transparent, and publicly provable based on SNARKs.</p>
+<p>In a nutshell, the manufacturer first commits to all the future responses of each device for every challenge. How? It builds a Merkle tree of a hash of the device public key, the challenge and its response <code>H(pk_i || c_i || r_i)</code>. This Merkle root is posted to the blockchain.</p>
+<p>During remote attestation, the devices are simply required to prove their knowledge of the correct responses to each challenge. So now everyone can verify the correctness of the attestation claim, and only the verified devices can reveal the commitment correctly.</p>
+<p>How does it work? The device queries the blockchain to retrieve the latest global
+challenge. Then the device computes the attestation evidence, denoted as <code>r_i</code> and constructs a proof that shows that it has a commitment that <code>r_i</code> is part of the Merkle tree. Then the device submits its proof along with the public input and output of the circuit, i.e. challenge <code>c_i</code>, public key <code>pk_i</code>, and resulting final root <code>RT</code> to the blockchain.</p>
+</div>
+      </section>
+      <footer>
+  <p>&copy; 2024 </p>
+</footer>
+    </main>
+  </body>
+</html>
